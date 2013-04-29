@@ -1,0 +1,20 @@
+package rpc;
+
+message Message {
+  optional Request request = 1;
+  optional Response response = 2;
+}
+
+
+message Request {
+  optional int64 id = 1;
+
+  extensions 8 to max;
+}
+
+message Response {
+  optional int64 id = 1;
+
+  extensions 8 to max;
+}
+

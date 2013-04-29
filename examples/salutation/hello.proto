@@ -1,0 +1,39 @@
+import "proto/vtk.proto";
+import "proto/messages.proto";
+
+option cc_generic_services = false;
+
+message Request {
+  required string name = 1;
+}
+
+message Response {
+  required string greeting = 1;
+}
+
+message Notification {
+  optional string msg = 1;
+}
+
+// This will be in the system proto file
+message Void {
+
+}
+
+message RequestVTK {
+  optional vtk.vtkTable myObject = 1;
+  optional vtk.vtkTree myTree = 2;
+}
+
+message ResponseVTK {
+ optional vtk.vtkTable myObject = 1;
+}
+
+service SalutationService {
+  rpc sayHello(Request) returns(Response);
+  rpc sayBye(Request) returns(Response);
+  rpc sayVoid(Void) returns(Void);
+  rpc sayNotify(Notification) returns(Void);
+  rpc sayHelloVTK(RequestVTK) returns(ResponseVTK);
+}
+

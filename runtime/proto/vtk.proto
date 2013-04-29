@@ -1,0 +1,6 @@
+package vtk;
+
+message vtkTable {}
+
+message vtkTree {}
+

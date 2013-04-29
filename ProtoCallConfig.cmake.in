@@ -1,0 +1,91 @@
+if(NOT TARGET runtime)
+  include("@ProtoCall_TARGETS_DIR@/ProtoCallTargets.cmake")
+endif()
+
+set(ProtoCall_INSTALL_PREFIX @ProtoCall_INSTALL_PREFIX@)
+set(ProtoCall_INCLUDE_DIRS    "@ProtoCall_INCLUDE_DIRS@")
+set(ProtoCall_LIBRARY_DIR     "${ProtoCall_INSTALL_PREFIX}/@INSTALL_LIBRARY_DIR@@LIB_SUFFIX@")
+set(ProtoCall_Proto_DIR @ProtoCall_Proto_DIR@)
+set(ProtoCall_PLUGIN_EXE @ProtoCall_PLUGIN_EXE@)
+set(protobuf_DIR @protobuf_DIR@)
+
+macro(protocallc _common_source _service_source _proxy_source _include_dir)
+#  if(NOT ARGN)
+#    message(SEND_ERROR "Error: build_rpc() called without any proto files")
+#    return()
+#  endif()
+
+  set(${_include_dir} ${CMAKE_CURRENT_BINARY_DIR}/protoc_output)
+  set(${_common_source})
+  set(${_service_source})
+  set(${_proxy_source})
+  set(_proto_files)
+  set(_proto_dirs)
+  unset(_vtk_imported)
+  foreach(_proto_file ${ARGN})
+    get_filename_component(_abs_proto_file ${_proto_file} ABSOLUTE)
+    get_filename_component(_proto_file_we ${_proto_file} NAME_WE)
+	get_filename_component(_proto_file_path ${_abs_proto_file} PATH)
+
+    set(_src "${CMAKE_CURRENT_BINARY_DIR}/protoc_output/${_proto_file_we}.pb.cc")
+    set(_src_rpc "${CMAKE_CURRENT_BINARY_DIR}/protoc_output/${_proto_file_we}_rpc.pb.cc")
+
+    extract_service_names(_services ${_proto_file})
+    foreach(_service ${_services})
+      list(APPEND ${_service_source} ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/${_service}_Dispatcher.pb.cc)
+      list(APPEND ${_proxy_source} ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/${_service}_Proxy.pb.cc)
+      list(APPEND ${_proxy_source} ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/${_service}_Handler.pb.cc)
+	endforeach()
+
+    list(APPEND ${_common_source} ${_src} ${_src_rpc})
+    list(APPEND _proto_files ${_abs_proto_file})
+    list(APPEND _proto_dirs ${_proto_file_path})
+
+    # Are we importing any VTK types.
+    file(STRINGS ${_abs_proto_file} _vtk_import REGEX "^.*proto/vtk\\.proto.*$")
+
+    if (_vtk_import)
+      set(_vtk_imported TRUE)
+    endif()
+  endforeach()
+
+  list(APPEND ${_common_source}
+    ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/proto/messages.pb.cc)
+
+  if (_vtk_imported)
+    list(APPEND ${_common_source}
+      ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/proto/vtk.pb.cc)
+  endif()
+
+  list(APPEND _proto_dirs ${ProtoCall_Proto_DIR})
+  set(_proto_path_args)
+
+  foreach(_dir ${_proto_dirs})
+    list(APPEND  _proto_path_args "--proto_path=${_dir}")
+  endforeach()
+
+  set(_protoc_output_dir "${CMAKE_CURRENT_BINARY_DIR}/protoc_output")
+  get_target_property(_plugin_exe protoc-gen-protocallc LOCATION)
+
+  add_custom_command(
+    OUTPUT ${${_common_source}} ${${_service_source}} ${${_proxy_source}}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${_protoc_output_dir}
+    COMMAND protoc_compiler
+    ARGS --plugin=${_plugin_exe} --protocallc_out=${_protoc_output_dir}
+      ${_proto_path_args} ${_proto_files}
+    DEPENDS ${_proto_files}
+    COMMENT "Running C++ ProtoCall (protocol buffer) compiler"
+    VERBATIM )
+endmacro()
+
+macro(extract_service_names services file)
+  set(_regex "^[ \t]*service[ \t]*([^ \t]*)[ \t]*{[^{]*$")
+  file(STRINGS ${file} _lines REGEX ${_regex})
+
+  set(${services})
+
+  foreach(_line ${_lines})
+    string(REGEX MATCH ${_regex} _match "${_line}")
+    list(APPEND ${services} ${CMAKE_MATCH_1})
+  endforeach()
+endmacro()
