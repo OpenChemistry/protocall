@@ -305,8 +305,8 @@ void RpcGenerator::printHeaderGuardEnd(google::protobuf::io::Printer &printer,
 }
 
 static const string dispatchSignature
-  = "dispatch(int methodId, ::rpc::Message *requestMessageEnvelope,"
-      "const ::google::protobuf::Message *request, ProtoCall::Runtime::RpcChannel *replyChannel)";
+  = "dispatch(int methodId, rpc::Message *requestMessageEnvelope,"
+      "const google::protobuf::Message *request, ProtoCall::Runtime::RpcChannel *replyChannel)";
 
 static const string replySignature
   = "reply(ProtoCall::Runtime::ReplyInfo info)";
@@ -655,7 +655,7 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
         std::ostringstream stream;
         stream << "obj" << i;
         string var = stream.str();
-        tmpPrinter.Print("::$vtkType$ *$var$ = ::$vtkType$::New();\n",
+        tmpPrinter.Print("::$vtkType$ *$var$ = $vtkType$::New();\n",
             "var", var, "vtkType", vtkType);
 
         std::map<string, string> variables;
@@ -672,7 +672,7 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
 
   if (hasVtkTypes) {
     printer.Print("::google::protobuf::Message *mutableRequest "
-        "= const_cast< ::google::protobuf::Message *>($variableName$);\n",
+        "= const_cast< google::protobuf::Message *>($variableName$);\n",
         "variableName", variableName);
     printer.Print("$inputType$ *tmp ="
         "static_cast<$inputType$ *>(mutableRequest);\n",

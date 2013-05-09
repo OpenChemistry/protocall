@@ -142,7 +142,7 @@ const FieldDescriptor *RpcChannel::extractDataField(Message *msg)
 bool RpcChannel::handleRequest(::rpc::Message *messageEnvelope)
 {
   ServiceManager *mgr = ServiceManager::instance();
-  ::rpc::Request *request = messageEnvelope->mutable_request();
+  rpc::Request *request = messageEnvelope->mutable_request();
 
   const FieldDescriptor *descriptor = this->extractDataField(request);
   if (!descriptor) {
@@ -168,7 +168,7 @@ bool RpcChannel::handleRequest(::rpc::Message *messageEnvelope)
 
 bool RpcChannel::handleResponse(::rpc::Message *messageEnvelope)
 {
-  ::rpc::Response *response = messageEnvelope->mutable_response();
+  rpc::Response *response = messageEnvelope->mutable_response();
   CallBackMap::iterator it = m_responseCallbacks.find(response->id());
   if (it == m_responseCallbacks.end()) {
     this->setErrorString("Received unexpected response with id: " +

@@ -27,8 +27,8 @@ class RpcChannel;
 
 struct ReplyInfo {
   int methodId;
-  ::rpc::Message *requestMessageEnvelope;
-  ::google::protobuf::Message *response;
+  rpc::Message *requestMessageEnvelope;
+  google::protobuf::Message *response;
   RpcChannel *replyChannel;
 };
 
@@ -36,8 +36,8 @@ class ServiceDispatcher
 {
 public:
   ServiceDispatcher(Service *service);
-  virtual void dispatch(int methodId, ::rpc::Message *requestMessageEnvelope,
-      const ::google::protobuf::Message *request, RpcChannel *replyChannel) = 0;
+  virtual void dispatch(int methodId, rpc::Message *requestMessageEnvelope,
+      const google::protobuf::Message *request, RpcChannel *replyChannel) = 0;
 
   // Method to send reply and clean up request and response?
   virtual void reply(ReplyInfo info) = 0;

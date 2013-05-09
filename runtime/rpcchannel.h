@@ -54,9 +54,9 @@ public:
   bool handleResponse(::rpc::Message *messageEnvelope);
 
   void registerResponseCallback(int64_t requestId,
-                                ::google:: protobuf::Message *response,
+                                google:: protobuf::Message *response,
                                 ResponseHandler *handler,
-                                ::google::protobuf::Closure *done);
+                                google::protobuf::Closure *done);
 
 
   const std::string& errorString();
@@ -78,8 +78,8 @@ private:
   int m_error;
   std::string m_errorString;
 
-  const ::google::protobuf::FieldDescriptor * extractDataField(
-      ::google::protobuf::Message *msg);
+  const google::protobuf::FieldDescriptor * extractDataField(
+      google::protobuf::Message *msg);
 
   char *m_data;
   size_t m_size;

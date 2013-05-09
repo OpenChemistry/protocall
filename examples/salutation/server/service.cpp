@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vtkFloatArray.h>
 
-void SalutationServiceImpl::sayHello(const Request* input, Response* output, ::google::protobuf::Closure* done)
+void SalutationServiceImpl::sayHello(const Request* input, Response* output, google::protobuf::Closure* done)
 {
   std::cerr << "Hello " << input->name() << endl;
   std::ostringstream greeting;
@@ -11,18 +11,18 @@ void SalutationServiceImpl::sayHello(const Request* input, Response* output, ::g
   output->set_greeting(greeting.str());
   done->Run();
 }
-void SalutationServiceImpl::sayBye(const Request* input, Response* output, ::google::protobuf::Closure* done)
+void SalutationServiceImpl::sayBye(const Request* input, Response* output, google::protobuf::Closure* done)
 {}
 void SalutationServiceImpl::sayVoid(::google::protobuf::Closure* done)
 {
   std::cout << "Touching the void..." << endl;
 }
-void SalutationServiceImpl::sayNotify(const Notification* input, ::google::protobuf::Closure* done)
+void SalutationServiceImpl::sayNotify(const Notification* input, google::protobuf::Closure* done)
 {
   std::cout << "Note taken" << std::endl;
 }
 
-void SalutationServiceImpl::sayHelloVTK(const RequestVTK *input, ResponseVTK *out, ::google::protobuf::Closure* done)
+void SalutationServiceImpl::sayHelloVTK(const RequestVTK *input, ResponseVTK *out, google::protobuf::Closure* done)
 {
   vtkTable *table = input->myobject().get();
   table->Dump();
