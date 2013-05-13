@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
       cout << "Listen failure " << endl;
     }
 
-    ProtoCall::Runtime::VtkCommunicatorChannel channel(com);
+    ProtoCall::Runtime::vtkCommunicatorChannel channel(com);
     ProtoCall::Runtime::ServiceManager *mgr = ProtoCall::Runtime::ServiceManager::instance();
     SalutationServiceImpl service;
     SalutationService::Dispatcher dispatcher(&service);

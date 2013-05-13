@@ -28,14 +28,14 @@ namespace Runtime {
 #define DATAOBJECT_TAG 1236
 #define DATAARRAY_TAG 1237
 
-VtkCommunicatorChannel::VtkCommunicatorChannel(vtkSocketCommunicator *communicator)
+vtkCommunicatorChannel::vtkCommunicatorChannel(vtkSocketCommunicator *communicator)
  : m_communicator(communicator)
 {
   m_collection = vtkSocketCollection::New();
   m_collection->AddItem(m_communicator->GetSocket());
 }
 
-bool VtkCommunicatorChannel::send(const void *data, int size)
+bool vtkCommunicatorChannel::send(const void *data, int size)
 {
   if (!m_communicator->SendVoidArray(data, size, VTK_UNSIGNED_CHAR, 1,
       MESSAGE_TAG)) {
@@ -46,7 +46,7 @@ bool VtkCommunicatorChannel::send(const void *data, int size)
   return true;
 }
 
-bool VtkCommunicatorChannel::send(int size)
+bool vtkCommunicatorChannel::send(int size)
 {
   if (!m_communicator->Send(const_cast<const int*>(&size), 1, 1, SIZE_TAG)) {
     this->setErrorString("VTK Error: Error calling Send");
@@ -56,7 +56,7 @@ bool VtkCommunicatorChannel::send(int size)
   return true;
 }
 
-bool VtkCommunicatorChannel::send(const rpc::Message *msg)
+bool vtkCommunicatorChannel::send(const rpc::Message *msg)
 {
   if (!msg) {
     this->setErrorString("send passed a NULL message");
@@ -91,7 +91,7 @@ bool VtkCommunicatorChannel::send(const rpc::Message *msg)
   return true;
 }
 
-bool VtkCommunicatorChannel::send(vtkDataObject *obj)
+bool vtkCommunicatorChannel::send(vtkDataObject *obj)
 {
   if (!this->m_communicator->Send(obj, 1, DATAOBJECT_TAG)) {
     this->setErrorString("VTK Error: Error calling Sent(vtkDataObject*)");
@@ -101,7 +101,7 @@ bool VtkCommunicatorChannel::send(vtkDataObject *obj)
   return true;
 }
 
-bool VtkCommunicatorChannel::send(vtkDataArray *array)
+bool vtkCommunicatorChannel::send(vtkDataArray *array)
 {
   if (!this->m_communicator->Send(array, 1, DATAARRAY_TAG)) {
     this->setErrorString("VTK Error: Error calling Sent(vtkDataArray*)");
@@ -112,7 +112,7 @@ bool VtkCommunicatorChannel::send(vtkDataArray *array)
 }
 
 
-bool VtkCommunicatorChannel::receive(void *data, int size)
+bool vtkCommunicatorChannel::receive(void *data, int size)
 {
   if (!this->m_communicator->ReceiveVoidArray(data, size, VTK_UNSIGNED_CHAR, 1,
       MESSAGE_TAG)) {
@@ -123,7 +123,7 @@ bool VtkCommunicatorChannel::receive(void *data, int size)
   return true;
 }
 
-bool VtkCommunicatorChannel::receive(int *size)
+bool vtkCommunicatorChannel::receive(int *size)
 {
   if (!this->m_communicator->Receive(size, 1, 1, SIZE_TAG)) {
     this->setErrorString("VTK Error: Error calling Receive(int*)");
@@ -135,7 +135,7 @@ bool VtkCommunicatorChannel::receive(int *size)
 
 
 // TODO move to super class
-bool VtkCommunicatorChannel::receive(rpc::Message *msg)
+bool vtkCommunicatorChannel::receive(rpc::Message *msg)
 {
   int size;
 
@@ -158,7 +158,7 @@ bool VtkCommunicatorChannel::receive(rpc::Message *msg)
   return true;
 }
 
-bool VtkCommunicatorChannel::receive(bool nonBlocking)
+bool vtkCommunicatorChannel::receive(bool nonBlocking)
 {
   bool rc = true;
 
@@ -170,7 +170,7 @@ bool VtkCommunicatorChannel::receive(bool nonBlocking)
   return rc;
 }
 
-bool VtkCommunicatorChannel::receive(vtkDataObject *obj)
+bool vtkCommunicatorChannel::receive(vtkDataObject *obj)
 {
   if (!m_communicator->Receive(obj, 1, DATAOBJECT_TAG)) {
     this->setErrorString("VTK Errror: Error calling Receive(vtkDataObject*)");
@@ -180,7 +180,7 @@ bool VtkCommunicatorChannel::receive(vtkDataObject *obj)
   return true;
 }
 
-bool VtkCommunicatorChannel::receive(vtkDataArray *array)
+bool vtkCommunicatorChannel::receive(vtkDataArray *array)
 {
   if (!m_communicator->Receive(array, 1, DATAARRAY_TAG)) {
     this->setErrorString("VTK Errror: Error calling Receive(vtkDataArray*)");
@@ -191,7 +191,7 @@ bool VtkCommunicatorChannel::receive(vtkDataArray *array)
 }
 
 
-bool VtkCommunicatorChannel::select()
+bool vtkCommunicatorChannel::select()
 {
   return (m_collection->SelectSockets(300) == 1);
 }

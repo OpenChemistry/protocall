@@ -25,10 +25,10 @@
 namespace ProtoCall {
 namespace Runtime {
 
-class VtkCommunicatorChannel: public RpcChannel
+class vtkCommunicatorChannel: public RpcChannel
 {
 public:
-  VtkCommunicatorChannel(vtkSocketCommunicator *communicator);
+  vtkCommunicatorChannel(vtkSocketCommunicator *communicator);
 
   bool send(const rpc::Message *msg);
   bool send(vtkDataObject *obj);

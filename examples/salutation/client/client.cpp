@@ -47,7 +47,7 @@ vtkSocketCommunicator *com = vtkSocketCommunicator::New();
     cout << "Connection failure" << endl;
   }
 
-  ProtoCall::Runtime::VtkCommunicatorChannel channel(com);
+  ProtoCall::Runtime::vtkCommunicatorChannel channel(com);
   SalutationService::Proxy proxy(&channel);
 
   for (int i=0; i< 100; i++) {
