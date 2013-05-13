@@ -31,9 +31,12 @@ public:
   VtkCommunicatorChannel(vtkSocketCommunicator *communicator);
 
   bool send(const rpc::Message *msg);
-  bool send(::vtkDataObject *obj);
+  bool send(vtkDataObject *obj);
+  bool send(vtkDataArray *array);
+
   bool receive(bool nonBlocking = true);
-  bool receive(::vtkDataObject *obj);
+  bool receive(vtkDataObject *obj);
+  bool receive(vtkDataArray *array);
 
 protected:
   bool send(const void *data, int size);

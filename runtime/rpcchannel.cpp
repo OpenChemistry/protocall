@@ -57,12 +57,22 @@ bool RpcChannel::send(const rpc::Message *messageEnvelope)
   return this->send(data, size);
 }
 
-bool RpcChannel::send(::vtkDataObject *obj)
+bool RpcChannel::send(vtkDataObject *obj)
 {
   std::cerr << "Not supported, try a VTK subclass!";
 }
 
-bool RpcChannel::receive(::vtkDataObject *obj)
+bool RpcChannel::receive(vtkDataObject *obj)
+{
+  std::cerr << "Not supported, try a VTK subclass!";
+}
+
+bool RpcChannel::send(vtkDataArray *array)
+{
+  std::cerr << "Not supported, try a VTK subclass!";
+}
+
+bool RpcChannel::receive(vtkDataArray *array)
 {
   std::cerr << "Not supported, try a VTK subclass!";
 }
@@ -79,7 +89,7 @@ void RpcChannel::registerResponseCallback(int64_t requestId,
   m_responseCallbacks.insert(CallBackRecord(requestId, entry));
 }
 
-bool RpcChannel::receive(::rpc::Message *messageEnvelope)
+bool RpcChannel::receive(rpc::Message *messageEnvelope)
 {
   if (!messageEnvelope->ParseFromArray(m_data, m_size)) {
     this->setErrorString("ProtoBuf: Error calling ParseFromArray");
@@ -139,7 +149,7 @@ const FieldDescriptor *RpcChannel::extractDataField(Message *msg)
   return descriptor;
 }
 
-bool RpcChannel::handleRequest(::rpc::Message *messageEnvelope)
+bool RpcChannel::handleRequest(rpc::Message *messageEnvelope)
 {
   ServiceManager *mgr = ServiceManager::instance();
   rpc::Request *request = messageEnvelope->mutable_request();
@@ -166,7 +176,7 @@ bool RpcChannel::handleRequest(::rpc::Message *messageEnvelope)
   return true;
 }
 
-bool RpcChannel::handleResponse(::rpc::Message *messageEnvelope)
+bool RpcChannel::handleResponse(rpc::Message *messageEnvelope)
 {
   rpc::Response *response = messageEnvelope->mutable_response();
   CallBackMap::iterator it = m_responseCallbacks.find(response->id());

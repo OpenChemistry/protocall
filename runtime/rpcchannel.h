@@ -25,6 +25,8 @@
 #include "runtime/responsehandler.h"
 
 class vtkDataObject;
+class vtkDataArray;
+
 
 namespace ProtoCall {
 namespace Runtime {
@@ -44,14 +46,16 @@ public:
   // TODO Make these private and use friendship?
   uint64_t  nextRequestId();
   virtual bool send(const rpc::Message *msg);
-  virtual bool send(::vtkDataObject *obj);
+  virtual bool send(vtkDataObject *obj);
+  virtual bool send(vtkDataArray *array);
 
   virtual bool receive(bool nonBlocking = true);
-  virtual bool receive(::vtkDataObject *obj);
+  virtual bool receive(vtkDataObject *obj);
+  virtual bool receive(vtkDataArray *array);
 
-  bool handleMessage(::rpc::Message *messageEnvelope);
-  bool handleRequest(::rpc::Message *messageEnvelope);
-  bool handleResponse(::rpc::Message *messageEnvelope);
+  bool handleMessage(rpc::Message *messageEnvelope);
+  bool handleRequest(rpc::Message *messageEnvelope);
+  bool handleResponse(rpc::Message *messageEnvelope);
 
   void registerResponseCallback(int64_t requestId,
                                 google:: protobuf::Message *response,

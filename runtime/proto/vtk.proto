@@ -1,8 +1,26 @@
 package vtk;
 
+// Data objects
 message vtkTable {}
 message vtkTree {}
 message vtkImageData {}
 message vtkPolyData {}
 message vtkUnstructuredGrid {}
 message vtkStructuredGrid {}
+
+// Data arrays
+message vtkBitArray {}
+message vtkCharArray {}
+message vtkDoubleArray {}
+message vtkFloatArray {}
+message vtkIdTypeArray {}
+message vtkIntArray {}
+message vtkLongArray {}
+message vtkLongLongArray {}
+message vtkShortArray {}
+message vtkSignedCharArray {}
+message vtkUnsignedCharArray {}
+message vtkUnsignedIntArray {}
+message vtkUnsignedLongArray {}
+message vtkUnsignedLongLongArray {}
+message vtkUnsignedShortArray {}
