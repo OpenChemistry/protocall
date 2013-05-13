@@ -1,6 +1,8 @@
 package vtk;
 
 message vtkTable {}
-
 message vtkTree {}
-
+message vtkImageData {}
+message vtkPolyData {}
+message vtkUnstructuredGrid {}
+message vtkStructuredGrid {}
