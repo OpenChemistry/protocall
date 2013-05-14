@@ -604,7 +604,10 @@ void RpcGenerator::generateSentVtkBlock(const string &variableName,
         std::ostringstream stream;
         stream << "obj" << i;
         string var = stream.str();
-        printer.Print("::$vtkType$ *$var$ =", "vtkType", vtkType, "var", var);
+        printer.Print("if ($variableName$->has_$fieldName$()) {\n",
+          "variableName", variableName, "fieldName", field->lowercase_name());
+        printer.Indent();
+        printer.Print("$vtkType$ *$var$ = ", "vtkType", vtkType, "var", var);
         printer.Print("$variableName$->$fieldName$().get();\n", "variableName",
             variableName, "fieldName", field->lowercase_name());
 
@@ -618,11 +621,7 @@ void RpcGenerator::generateSentVtkBlock(const string &variableName,
         this->generateErrorCheck("$channelName$->send($var$)", variables,
             printer);
         printer.Outdent();
-        printer.Print("}\nelse {\n");
-        printer.Indent();
-        printer.Print("vtkNew<$vtkType$> empty;\n", "vtkType", vtkType);
-        this->generateErrorCheck("$channelName$->send(empty.GetPointer())",
-            variables, printer);
+        printer.Print("}\n");
         printer.Outdent();
         printer.Print("}\n");
       }
@@ -655,7 +654,11 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
         std::ostringstream stream;
         stream << "obj" << i;
         string var = stream.str();
-        tmpPrinter.Print("::$vtkType$ *$var$ = $vtkType$::New();\n",
+
+        tmpPrinter.Print("if ($variableName$->has_$fieldName$()) {\n",
+          "variableName", "tmp", "fieldName", field->lowercase_name());
+        tmpPrinter.Indent();
+        tmpPrinter.Print("$vtkType$ *$var$ = $vtkType$::New();\n",
             "var", var, "vtkType", vtkType);
 
         std::map<string, string> variables;
@@ -666,6 +669,8 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
 
         tmpPrinter.Print("tmp->mutable_$field$()->set_allocated($var$);\n",
             "field", field->lowercase_name(), "var", var);
+        tmpPrinter.Outdent();
+        tmpPrinter.Print("}\n");
       }
     }
   }
