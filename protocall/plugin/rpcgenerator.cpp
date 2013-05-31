@@ -266,7 +266,6 @@ bool RpcGenerator::Generate(const FileDescriptor * file,
                          string * error) const
 {
   string protoName = file->name();
-  std::cerr << "generate: " << protoName << std::endl;
   protoName = protoName.substr(0, protoName.find(".proto"));
 
   for(int i=0; i<file->service_count(); i++  ) {
@@ -540,7 +539,6 @@ void RpcGenerator::generateRelyMethod(
     printer.Print("rpc::Message msg;\n");
     printer.Print("rpc::Response *response = msg.mutable_response();\n");
     printer.Print("int64_t requestId = info.requestMessageEnvelope->request().id();\n");
-    printer.Print("cout << \"id:\" <<requestId << endl;");
     printer.Print("response->set_id(requestId);\n");
     string extensionName = toExtensionName(method->full_name());
     std::ostringstream var;
@@ -938,8 +936,6 @@ void RpcGenerator::extractExternalTypes(
 
     if (field->type() == FieldDescriptor::TYPE_MESSAGE) {
       string messageTypeName = field->message_type()->full_name();
-
-      std::cerr << "messageTypeName: " << messageTypeName << std::endl;
 
       if (messageTypeName.find("external.") == 0)
         externalTypes.insert(messageTypeName);

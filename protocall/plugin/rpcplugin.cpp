@@ -108,19 +108,12 @@ int RpcPlugin::generateExtensionNumber(string &methodName)
 
   unsigned int hash = crc.checksum();
 
-//  cerr << "hash: " << hash << endl;
-//  cerr << "minEx: " << minExtensionNumber << endl;
-
   int extensionNumber = minExtensionNumber +
     static_cast<int>(availableExtensionNumbers
       * (hash / static_cast<double>(UINT_MAX)));
 
-//  cerr << "exten: " << extensionNumber << endl;
-
   if (!isValidExtensionNumber(extensionNumber))
     cerr << "Invalid extension number generated." << endl;
-
-//  cerr << "extension" << endl;
 
   return extensionNumber;
 }
