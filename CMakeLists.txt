@@ -11,7 +11,6 @@ include_directories(${protobuf_INCLUDE_DIRS})
 # To find up boost headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(common)
 add_subdirectory(runtime)
 add_subdirectory(plugin)
 
@@ -34,8 +33,10 @@ configure_file(ProtoCallConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/ProtoCallConfig.cmake @ONLY)
 
 # export targets file in build tree
-export(TARGETS runtime common protoc-gen-protocallc
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/ProtoCallTargets.cmake)
+install(FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/protocall/serialization/serializer.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/protocall/serialization/deserializer.h"
+  DESTINATION "${INSTALL_INCLUDE_DIR}/protocall/serialization")
 
 install(FILES
   "${ProtoCall_BINARY_DIR}/CMakeFiles/ProtoCallConfig.cmake"

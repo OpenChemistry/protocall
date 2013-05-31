@@ -46,9 +46,9 @@ bool vtkCommunicatorChannel::send(const void *data, int size)
   return true;
 }
 
-bool vtkCommunicatorChannel::send(int size)
+bool vtkCommunicatorChannel::send(unsigned int size)
 {
-  if (!m_communicator->Send(const_cast<const int*>(&size), 1, 1, SIZE_TAG)) {
+  if (!m_communicator->Send(const_cast<const unsigned int*>(&size), 1, 1, SIZE_TAG)) {
     this->setErrorString("VTK Error: Error calling Send");
     return false;
   }
@@ -123,7 +123,7 @@ bool vtkCommunicatorChannel::receive(void *data, int size)
   return true;
 }
 
-bool vtkCommunicatorChannel::receive(int *size)
+bool vtkCommunicatorChannel::receive(unsigned int *size)
 {
   if (!this->m_communicator->Receive(size, 1, 1, SIZE_TAG)) {
     this->setErrorString("VTK Error: Error calling Receive(int*)");
@@ -137,7 +137,7 @@ bool vtkCommunicatorChannel::receive(int *size)
 // TODO move to super class
 bool vtkCommunicatorChannel::receive(rpc::Message *msg)
 {
-  int size;
+  unsigned int size;
 
   if (!this->receive(&size)) {
     this->setErrorString("Unable to receive message size");

@@ -33,21 +33,22 @@ public:
   bool send(const rpc::Message *msg);
   bool send(vtkDataObject *obj);
   bool send(vtkDataArray *array);
+  bool send(const void *data, int size);
+  bool send(unsigned int size);
 
   bool receive(bool nonBlocking = true);
   bool receive(vtkDataObject *obj);
   bool receive(vtkDataArray *array);
+  bool receive(void *data, int size);
+  bool receive(unsigned int *size);
 
 protected:
-  bool send(const void *data, int size);
-  bool receive(void *data, int size);
   bool receive(rpc::Message *msg);
 private:
   vtkSocketCommunicator *m_communicator;
   vtkSocketCollection *m_collection;
 
-  bool send(int size);
-  bool receive(int *size);
+
   bool select();
 };
 

@@ -14,19 +14,31 @@
 
  ******************************************************************************/
 
-#ifndef UTILS_H_
-#define UTILS_H_
+#ifndef PROTOCALL_COMPILER_UTILITIES_H
+#define PROTOCALL_COMPILER_UTILITIES_H
 
+#include <algorithm>
+#include <vector>
 #include <string>
 
 namespace ProtoCall {
-namespace Common {
-
+namespace Compiler {
 
 bool isVoidType(std::string &type);
+
 std::string toExtensionName(std::string methodName);
 
+void replace(std::string &str, const std::string &search,
+    const std::string &replace);
+
+std::string externalTypeToClass(const std::string &name);
+
+std::string externalTypeToHeaderPath(const std::string &type);
+
+std::string extractClassName(const std::string &type);
+
+std::vector<std::string> extractNamespaces(const std::string &type);
 }
 }
 
-#endif /* UTILS_H_ */
+#endif

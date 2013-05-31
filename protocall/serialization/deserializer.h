@@ -1,6 +1,6 @@
 /******************************************************************************
 
- This source file is part of the ProtoCall project.
+ This source file is part of the MoleQueue project.
 
  Copyright 2013 Kitware, Inc.
 
@@ -14,24 +14,21 @@
 
  ******************************************************************************/
 
-#include "utils.h"
-#include <algorithm>
-
-using std::string;
+#ifndef DESERIALIZER_H_
+#define DESERIALIZER_H_
 
 namespace ProtoCall {
-namespace Common {
+namespace Serialization {
 
-bool isVoidType(string &type)
+class Deserializer
 {
-  return type == "Void";
-}
+public:
+  virtual ~Deserializer() {};
 
-string toExtensionName(string methodName)
-{
-  replace(methodName.begin(), methodName.end(), '.', '_' );
-  return methodName;
-}
+  virtual bool deserialize(const void *data, size_t size) = 0;
+};
 
-}
-}
+} /* namespace Serialization */
+} /* namespace ProtoCall */
+
+#endif /* DESERIALIZER_H_ */

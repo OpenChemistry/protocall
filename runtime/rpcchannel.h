@@ -52,6 +52,10 @@ public:
   virtual bool receive(bool nonBlocking = true);
   virtual bool receive(vtkDataObject *obj);
   virtual bool receive(vtkDataArray *array);
+  virtual bool send(const void *data, int size) = 0;
+  virtual bool receive(void *data, int size) = 0;
+  virtual bool send(unsigned int i) = 0;
+  virtual bool receive(unsigned int *i) = 0;
 
   bool handleMessage(rpc::Message *messageEnvelope);
   bool handleRequest(rpc::Message *messageEnvelope);
@@ -70,10 +74,8 @@ public:
   typedef std::map<int64_t,ResponseCallbackEntry> CallBackMap;
 
 protected:
-
   virtual bool receive(rpc::Message *msg);
-  virtual bool send(const void *data, int size) = 0;
-  virtual bool receive(void *data, int size) = 0;
+
 
 private:
   uint64_t  m_currentRequestId;

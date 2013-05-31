@@ -20,12 +20,14 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/io/printer.h>
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace ProtoCall {
 namespace Compiler {
@@ -100,6 +102,21 @@ private:
   void generateErrorCheck(const char *callText,
       google::protobuf::io::Printer &printer,
       const char *blockText = NULL) const;
+
+  void generateSentExternalBlock(const string &variableName,
+      const string &channelName, const google::protobuf::Descriptor *descriptor,
+      google::protobuf::io::Printer &printer) const;
+
+  void generateReceiveExternalBlock(const string &variableName,
+      const string &channelName, const google::protobuf::Descriptor *descriptor,
+      google::protobuf::io::Printer &printer) const;
+
+  void extractExternalTypes(
+        const google::protobuf::Descriptor *descriptor,
+        set<string> &externalTypes) const;
+
+  set<string> extractExternalTypes(
+      const google::protobuf::ServiceDescriptor *descriptor) const;
 
 };
 

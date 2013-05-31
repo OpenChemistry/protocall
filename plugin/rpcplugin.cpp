@@ -1,6 +1,21 @@
+/******************************************************************************
+
+ This source file is part of the ProtoCall project.
+
+ Copyright 2013 Kitware, Inc.
+
+ This source code is released under the New BSD License, (the "License").
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ ******************************************************************************/
 #include "rpcplugin.h"
 #include "rpcgenerator.h"
-#include "common/utils.h"
+#include "utilities.h"
 
 #include <google/protobuf/compiler/plugin.h>
 #include <google/protobuf/compiler/plugin.pb.h>
@@ -130,7 +145,7 @@ bool RpcPlugin::addRpcMessageExtensions(const google::protobuf::MethodDescriptor
 
   int extensionNumber = this->generateExtensionNumber(methodName);
 
-  string extensionName =  Common::toExtensionName(methodName);
+  string extensionName =  toExtensionName(methodName);
 
   // Add Request extension
   string requestTypeName = method->input_type()->full_name();
@@ -139,7 +154,7 @@ bool RpcPlugin::addRpcMessageExtensions(const google::protobuf::MethodDescriptor
 
   // Add Response extension
   string responseTypeName = method->output_type()->full_name();
-  if (!Common::isVoidType(responseTypeName))
+  if (!isVoidType(responseTypeName))
     addExtension(rpcProto, extensionName+ "_response", "rpc.Response", extensionNumber,
         responseTypeName);
 
@@ -277,12 +292,126 @@ void RpcPlugin::addVtkInserts(CodeGeneratorResponse &response)
   }
 }
 
+void RpcPlugin::addExternalInsert(const FileDescriptor *fileDes,
+    CodeGeneratorResponse &response)
+{
+  for(int i=0; i<fileDes->message_type_count(); i++) {
+
+    const Descriptor *type = fileDes->message_type(i);
+
+    if (type->full_name().find("external.") != 0)
+      continue;
+
+    string externalType = type->full_name();
+    string externalClass = externalTypeToClass(externalType);
+
+    string header = fileDes->name();
+    size_t pos = fileDes->name().find(".proto");
+    header.replace(pos, string::npos, ".pb.h");
+
+    // Add include
+    google::protobuf::compiler::CodeGeneratorResponse_File *file
+      = response.add_file();
+    file->set_name(header);
+    file->set_insertion_point("includes");
+
+    string include = "#include <";
+
+    vector<string> namespaces = extractNamespaces(externalClass);
+    for(vector<string>::const_iterator it = namespaces.begin();
+        it != namespaces.end(); it++)
+    {
+      string name = *it;
+      transform(name.begin(), name.end(),name.begin(),
+          ::tolower);
+      include += name;
+
+      if(it != namespaces.end())
+        include += '/';
+    }
+
+    string className = extractClassName(externalType);
+    transform(className.begin(), className.end(), className.begin(),
+        ::tolower);
+
+    include += className + ".h>\n";
+
+    file->set_content(include.c_str());
+
+    // Add inserting point for vtkDataObject accessors
+    file = response.add_file();
+    file->set_name(header);
+    string insertionPoint = "class_scope:";
+    insertionPoint += externalType;
+    file->set_insertion_point(insertionPoint);
+
+    string insert;
+    io::StringOutputStream stream(&insert);
+    io::Printer printer(&stream, '$');
+
+    printer.Print("private:\n");
+    printer.Indent();
+    printer.Print("class ExternalObjectHolder {\n");
+    printer.Print("public:\n");
+    printer.Indent();
+    printer.Print("ExternalObjectHolder() : m_object(NULL), m_owns(false) {};\n");
+    printer.Print("~ExternalObjectHolder() {\n");
+    printer.Indent();
+    printer.Print("if (m_owns && m_object)\n");
+    printer.Indent();
+    printer.Print("delete m_object;\n");
+    printer.Outdent();
+    printer.Outdent();
+    printer.Print("};\n");
+    printer.Print("void set(::$externalClass$ *obj) { m_object = obj; };\n",
+        "externalClass", externalClass);
+    printer.Print("void set_allocated(::$externalClass$ *obj) { m_object = obj; m_owns = true; };\n",
+            "externalClass", externalClass);
+    printer.Print("::$externalClass$ *get() const { return m_object; };\n", "externalClass",
+        externalClass);
+    printer.Outdent();
+    printer.Print("private:\n");
+    printer.Indent();
+    printer.Print("::$externalClass$ *m_object;\n", "externalClass", externalClass);
+    printer.Print("bool m_owns;\n");
+    printer.Outdent();
+    printer.Print("};\n");
+    printer.Print("ExternalObjectHolder m_holder;");
+    printer.Outdent();
+
+    printer.Print("public:\n");
+    printer.Indent();
+    printer.Print("void set(::$externalClass$ *obj) { m_holder.set(obj); };\n",
+        "externalClass", externalClass);
+    printer.Print("void set_allocated(::$externalClass$ *obj) { m_holder.set_allocated(obj); };\n",
+            "externalClass", externalClass);
+    printer.Print("::$externalClass$ *get() const { return m_holder.get(); };\n", "externalClass",
+        externalClass);
+    printer.Outdent();
+
+    file->set_content(insert.c_str());
+  }
+}
+
+void RpcPlugin::addExternalInserts(google::protobuf::compiler::CodeGeneratorResponse &response)
+{
+  for (vector<const FileDescriptor *>::iterator it =  m_fileDescriptors.begin();
+      it != m_fileDescriptors.end(); it++) {
+    const FileDescriptor *file = *it;
+
+    this->addExternalInsert(file, response);
+  }
+}
+
 bool RpcPlugin::main(int argc, char *argv[])
 {
   CodeGeneratorRequest request;
   request.ParseFromIstream(&cin);
 
   Parser parser;
+
+
+
 
   // Load all the files into the pool
   for(int i=0; i< request.proto_file_size(); i++) {
@@ -321,6 +450,7 @@ bool RpcPlugin::main(int argc, char *argv[])
   }
 
   this->addVtkInserts(response);
+  this->addExternalInserts(response);
 
   response.SerializePartialToOstream(&cout);
 

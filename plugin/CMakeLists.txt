@@ -1,11 +1,11 @@
 add_executable(protoc-gen-protocallc
   rpcplugin.cpp
-  rpcgenerator.cpp)
+  rpcgenerator.cpp
+  utilities.cpp)
 
 target_link_libraries(protoc-gen-protocallc
   protobuf
-  protoc
-  common)
+  protoc)
 
 install(TARGETS protoc-gen-protocallc
   EXPORT "ProtoCallTargets"

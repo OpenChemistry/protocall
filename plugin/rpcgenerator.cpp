@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #include "rpcgenerator.h"
-#include "common/utils.h"
+#include "utilities.h"
 #include "rpcplugin.h"
 
 #include <google/protobuf/compiler/plugin.h>
@@ -229,7 +229,7 @@ void RpcGenerator::generateServiceProxyCc(google::protobuf::compiler::GeneratorC
     string outputType = method->output_type()->name();
     cppPrinter.Print("rpc::Message msg;\n");
     cppPrinter.Print("rpc::Request *request = msg.mutable_request();\n");
-    if (!Common::isVoidType(inputType) && !Common::isVoidType(outputType)) {
+    if (!isVoidType(inputType) && !isVoidType(outputType)) {
       cppPrinter.Print("int64_t id = this->m_channel->nextRequestId();\n");
       cppPrinter.Print("request->set_id(id);\n");
       cppPrinter.Print("$service$_Handler *handler = new $service$_Handler();\n",
@@ -237,9 +237,9 @@ void RpcGenerator::generateServiceProxyCc(google::protobuf::compiler::GeneratorC
       cppPrinter.Print("m_channel->registerResponseCallback(id, output, handler, done);\n");
     }
     cppPrinter.Print("$input_type$ *ext = request->MutableExtension($full_name$_request);\n",
-        "input_type", inputType, "full_name", Common::toExtensionName(method->full_name()));
+        "input_type", inputType, "full_name", toExtensionName(method->full_name()));
 
-    if (!Common::isVoidType(inputType))
+    if (!isVoidType(inputType))
       cppPrinter.Print("ext->CopyFrom(*input);\n");
 
     // Send the message
@@ -249,6 +249,9 @@ void RpcGenerator::generateServiceProxyCc(google::protobuf::compiler::GeneratorC
     this->generateSentVtkBlock("input", "m_channel",
         method->input_type(), cppPrinter);
 
+    // Now check if we have any external objects to send
+    this->generateSentExternalBlock("input", "m_channel",
+        method->input_type(), cppPrinter);
 
     cppPrinter.Outdent();
 
@@ -390,16 +393,20 @@ void RpcGenerator::generateDispatchMethodBody(
     printer.Indent();
     printer.Print("// $methodName$\n", "methodName",  methodName);
 
-    if (!Common::isVoidType(inputTypeName)) {
+    if (!isVoidType(inputTypeName)) {
       printer.Print("const $inputType$ *in = static_cast<const $inputType$ *>(request);\n",
           "inputType", inputTypeName);
 
       // Receive any VTK types that might be on the wire ...
       generateReceiveVtkBlock("request", "replyChannel",
           method->input_type(),printer);
+
+      // Receive any external type that might be on the wire ...
+      generateReceiveExternalBlock("request", "replyChannel",
+          method->input_type(),printer);
     }
 
-    if (!Common::isVoidType(outputTypeName)) {
+    if (!isVoidType(outputTypeName)) {
       printer.Print("$outputType$ *out = new $outputType$();\n",
           "outputType", outputTypeName);
       printer.Print("ProtoCall::Runtime::ReplyInfo info;\n");
@@ -419,16 +426,16 @@ void RpcGenerator::generateDispatchMethodBody(
     printer.Print("static_cast<$service$ *>(m_service)->$methodName$(", "service",
         descriptor->name(), "methodName", method->name());
 
-    if (!Common::isVoidType(inputTypeName))
+    if (!isVoidType(inputTypeName))
       printer.Print("in");
 
-    if (!Common::isVoidType(inputTypeName) && !Common::isVoidType(outputTypeName))
+    if (!isVoidType(inputTypeName) && !isVoidType(outputTypeName))
       printer.Print(", ");
 
-    if (!Common::isVoidType(outputTypeName))
+    if (!isVoidType(outputTypeName))
       printer.Print("out");
 
-    if (!Common::isVoidType(inputTypeName) || !Common::isVoidType(outputTypeName))
+    if (!isVoidType(inputTypeName) || !isVoidType(outputTypeName))
       printer.Print(", ");
 
     printer.Print("done);\n");
@@ -466,6 +473,21 @@ void RpcGenerator::generateDispatcherCc(google::protobuf::compiler::GeneratorCon
   printer.Print("\"\n\n");
   printer.Print("#include <iostream>\n");
   printer.Print("#include <memory>\n");
+
+  // Add include for external serializers
+  set<string> externalTypes = this->extractExternalTypes(descriptor);
+
+  for(set<string>::const_iterator it = externalTypes.begin();
+      it != externalTypes.end(); ++it)
+  {
+    string path = externalTypeToHeaderPath(*it);
+    string cls = extractClassName(*it);
+    transform(cls.begin(), cls.end(), cls.begin(),
+      ::tolower);
+
+    printer.Print("#include <$path$$cls$serializer.h>\n", "path", path,
+        "cls", cls);
+  }
 
   // Add constructor implemention
   printer.Print("$service$_Dispatcher::$service$_Dispatcher($service$ *service)\n",
@@ -507,7 +529,7 @@ void RpcGenerator::generateRelyMethod(
     string inputTypeName = method->input_type()->name();
     string outputTypeName = method->output_type()->name();
 
-    if (Common::isVoidType(outputTypeName))
+    if (isVoidType(outputTypeName))
       continue;
 
     ostringstream methodIdStr;
@@ -522,7 +544,7 @@ void RpcGenerator::generateRelyMethod(
     printer.Print("int64_t requestId = info.requestMessageEnvelope->request().id();\n");
     printer.Print("cout << \"id:\" <<requestId << endl;");
     printer.Print("response->set_id(requestId);\n");
-    string extensionName = Common::toExtensionName(method->full_name());
+    string extensionName = toExtensionName(method->full_name());
     std::ostringstream var;
     var << "tmp" << j;
     printer.Print("$responseType$ *$var$ = static_cast<$responseType$ *>(info.response);\n",
@@ -536,6 +558,10 @@ void RpcGenerator::generateRelyMethod(
 
     // send any VTK object we need to.
     this->generateSentVtkBlock(var.str(), "info.replyChannel",
+        method->output_type(), printer);
+
+    // send any external objects we need to.
+    this->generateSentExternalBlock(var.str(), "info.replyChannel",
         method->output_type(), printer);
 
     printer.Outdent();
@@ -658,8 +684,16 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
         tmpPrinter.Print("if ($variableName$->has_$fieldName$()) {\n",
           "variableName", "tmp", "fieldName", field->lowercase_name());
         tmpPrinter.Indent();
-        tmpPrinter.Print("$vtkType$ *$var$ = $vtkType$::New();\n",
+        tmpPrinter.Print("$vtkType$ *$var$ = tmp->$fieldName$().get();\n",
+            "var", var, "vtkType", vtkType, "fieldName", field->lowercase_name());
+        tmpPrinter.Print("bool allocated = false;\n");
+        tmpPrinter.Print("if (!$var$) {\n", "var", var);
+        tmpPrinter.Indent();
+        tmpPrinter.Print("$var$ = $vtkType$::New();\n",
             "var", var, "vtkType", vtkType);
+        tmpPrinter.Print("allocated = true;\n");
+        tmpPrinter.Outdent();
+        tmpPrinter.Print("}");
 
         std::map<string, string> variables;
         variables["var"] = var;
@@ -667,8 +701,11 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
         this->generateErrorCheck("$channelName$->receive($var$)", variables,
             tmpPrinter, "$var$->Delete();return;\n");
 
+        tmpPrinter.Print("if (allocated)\n");
+        tmpPrinter.Indent();
         tmpPrinter.Print("tmp->mutable_$field$()->set_allocated($var$);\n",
             "field", field->lowercase_name(), "var", var);
+        tmpPrinter.Outdent();
         tmpPrinter.Outdent();
         tmpPrinter.Print("}\n");
       }
@@ -748,6 +785,21 @@ void RpcGenerator::generateResponseHandlerCpp(google::protobuf::compiler::Genera
 
   printer.Print("#include \"$class$.pb.h\"\n\n", "class", cls);
 
+  // Add includes for external deserializers
+  set<string> externalTypes = this->extractExternalTypes(descriptor);
+
+  for(set<string>::const_iterator it = externalTypes.begin();
+      it != externalTypes.end(); ++it)
+  {
+    string path = externalTypeToHeaderPath(*it);
+    string cls = extractClassName(*it);
+    transform(cls.begin(), cls.end(), cls.begin(),
+      ::tolower);
+
+    printer.Print("#include <$path$$cls$deserializer.h>\n", "path", path,
+        "cls", cls);
+  }
+
   // Constructor
   printer.Print("$class$::$class$() \n{\n}\n", "class", cls);
 
@@ -766,7 +818,7 @@ void RpcGenerator::generateResponseHandlerCpp(google::protobuf::compiler::Genera
     string inputTypeName = method->input_type()->name();
     string outputTypeName = method->output_type()->name();
 
-    if (Common::isVoidType(outputTypeName))
+    if (isVoidType(outputTypeName))
       continue;
 
     ostringstream methodIdStr;
@@ -781,6 +833,9 @@ void RpcGenerator::generateResponseHandlerCpp(google::protobuf::compiler::Genera
     this->generateReceiveVtkBlock("targetResponse", "channel", responseType,
         printer);
 
+    // Receive any external objects
+    this->generateReceiveExternalBlock("targetResponse", "channel", responseType,
+            printer);
 
     // Now call the users callback
     printer.Print("callback->Run();\n");
@@ -821,6 +876,197 @@ void RpcGenerator::generateErrorCheck(const char *call,
   tmpPrinter.Print("}\n");
 
   printer.Print(variables, code.c_str());
+}
+
+void RpcGenerator::generateSentExternalBlock(const string &variableName,
+    const string &channelName, const google::protobuf::Descriptor *descriptor,
+    google::protobuf::io::Printer &printer) const
+{
+  for(int i=0; i< descriptor->field_count(); i++) {
+    const FieldDescriptor *field = descriptor->field(i);
+
+    if (field->type() == FieldDescriptor::TYPE_MESSAGE) {
+      string messageTypeName = field->message_type()->full_name();
+
+      if (messageTypeName.find("external.") == 0) {
+        string externalClass = externalTypeToClass(messageTypeName);
+
+        std::ostringstream stream;
+        stream << "obj" << i;
+        string var = stream.str();
+        printer.Print("if ($variableName$->has_$fieldName$()) {\n",
+          "variableName", variableName, "fieldName", field->lowercase_name());
+        printer.Indent();
+        printer.Print("$externalClass$ *$var$ = ", "externalClass", externalClass, "var", var);
+        printer.Print("$variableName$->$fieldName$().get();\n", "variableName",
+            variableName, "fieldName", field->lowercase_name());
+
+        printer.Print("if ($var$) {\n", "var", var);
+        printer.Indent();
+
+        printer.Print("$externalClass$Serializer serializer($var$);\n",
+            "externalClass", externalClass, "var", var);
+        printer.Print("size_t size = serializer.size();\n");
+        std::map<string, string> variables;
+        variables["channelName"] = channelName;
+        printer.Print("std::vector<unsigned char> data(size);\n");
+        this->generateErrorCheck("serializer.serialize(&data[0], size)", variables,
+            printer, "$channelName$->setErrorString(\"Serialization failed\");return;\n");
+
+        variables.clear();
+        variables["channelName"] = channelName;
+
+        // Send the size first
+        this->generateErrorCheck("$channelName$->send(size)", variables,
+                    printer);
+
+        this->generateErrorCheck("$channelName$->send(&data[0], size)", variables,
+            printer);
+        printer.Outdent();
+        printer.Print("}\n");
+        printer.Outdent();
+        printer.Print("}\n");
+      }
+    }
+  }
+}
+
+void RpcGenerator::extractExternalTypes(
+    const google::protobuf::Descriptor *descriptor,
+    set<string> &externalTypes) const
+{
+  for(int i=0; i< descriptor->field_count(); i++) {
+    const FieldDescriptor *field = descriptor->field(i);
+
+    if (field->type() == FieldDescriptor::TYPE_MESSAGE) {
+      string messageTypeName = field->message_type()->full_name();
+
+      std::cerr << "messageTypeName: " << messageTypeName << std::endl;
+
+      if (messageTypeName.find("external.") == 0)
+        externalTypes.insert(messageTypeName);
+
+    }
+  }
+}
+
+set<string> RpcGenerator::extractExternalTypes(
+    const google::protobuf::ServiceDescriptor *descriptor) const
+{
+  set<string> externalTypes;
+
+  for(int j=0; j<descriptor->method_count(); j++) {
+    const MethodDescriptor *method = descriptor->method(j);
+
+    const Descriptor *inputDescriptor = method->input_type();
+    this->extractExternalTypes(inputDescriptor, externalTypes);
+
+    const Descriptor *outputDescriptor = method->output_type();
+    this->extractExternalTypes(outputDescriptor, externalTypes);
+
+  }
+
+  return externalTypes;
+}
+
+void RpcGenerator::generateReceiveExternalBlock(const string &variableName,
+    const string &channelName, const google::protobuf::Descriptor *descriptor,
+    google::protobuf::io::Printer &printer) const
+{
+  bool hasExternalTypes = false;
+
+  string code;
+  io::StringOutputStream stream(&code);
+  io::Printer tmpPrinter(&stream, '$');
+
+  for(int i=0; i< descriptor->field_count(); i++) {
+    const FieldDescriptor *field = descriptor->field(i);
+
+    if (field->type() == FieldDescriptor::TYPE_MESSAGE)
+    {
+      string messageTypeName = field->message_type()->full_name();
+
+      if (messageTypeName.find("external.") == 0) {
+        hasExternalTypes = true;
+
+        string externalClass = externalTypeToClass(messageTypeName);
+
+        std::ostringstream objStream;
+        objStream << "obj" << i;
+        string objVar = objStream.str();
+
+        std::ostringstream sizeStream;
+        sizeStream << "size" << i;
+        string sizeVar = sizeStream.str();
+
+        std::ostringstream deserializerStream;
+        deserializerStream << "deserializer" << i;
+        string deserializerVar = deserializerStream.str();
+
+        std::ostringstream dataStream;
+        dataStream << "data" << i;
+        string dataVar = dataStream.str();
+
+        tmpPrinter.Print("if ($variableName$->has_$fieldName$()) {\n",
+          "variableName", "tmp", "fieldName", field->lowercase_name());
+        tmpPrinter.Indent();
+
+        tmpPrinter.Print("unsigned int $sizeVar$;\n", "sizeVar", sizeVar);
+        std::map<string, string> variables;
+        variables["var"] = sizeVar;
+        variables["channelName"] = channelName;
+        this->generateErrorCheck("$channelName$->receive(&$var$)", variables,
+                    tmpPrinter);
+        tmpPrinter.Print("std::vector<unsigned char> $data$($size$);\n", "data",
+            dataVar, "size", sizeVar);
+        variables["var"] = dataVar;
+        variables["size"] = sizeVar;
+        this->generateErrorCheck("$channelName$->receive(&$var$[0], $size$)", variables,
+                    tmpPrinter);
+
+        tmpPrinter.Print("$externalClass$ *$objVar$ = tmp->$field$().get();\n",
+            "externalClass", externalClass, "objVar", objVar, "field", field->lowercase_name());
+        tmpPrinter.Print("bool allocated = false;\n");
+        tmpPrinter.Print("if (!$objVar$) {\n", "objVar", objVar);
+        tmpPrinter.Indent();
+        tmpPrinter.Print("$objVar$ = new $externalClass$();\n",
+            "objVar", objVar, "externalClass", externalClass);
+        tmpPrinter.Print("allocated = true;\n");
+        tmpPrinter.Outdent();
+        tmpPrinter.Print("}\n");
+
+        tmpPrinter.Print("$externalClass$Deserializer $deserializerVar$($objVar$);\n",
+            "externalClass", externalClass, "deserializerVar", deserializerVar,
+            "objVar", objVar);
+        variables["deserializerVar"] = deserializerVar;
+        this->generateErrorCheck("$deserializerVar$.deserialize(&$var$[0], $size$)", variables,
+            tmpPrinter, "$channelName$->setErrorString(\"Deserialization failed\");return;\n");
+
+        variables.clear();
+        variables["var"] = objVar;
+        variables["channelName"] = channelName;
+        variables["objVar"] = objVar;
+
+        tmpPrinter.Print("if (allocated)\n");
+        tmpPrinter.Indent();
+        tmpPrinter.Print("tmp->mutable_$field$()->set_allocated($objVar$);\n",
+            "field", field->lowercase_name(), "objVar", objVar);
+        tmpPrinter.Outdent();
+        tmpPrinter.Outdent();
+        tmpPrinter.Print("}\n");
+      }
+    }
+  }
+
+  if (hasExternalTypes) {
+    printer.Print("::google::protobuf::Message *mutableRequest "
+        "= const_cast< google::protobuf::Message *>($variableName$);\n",
+        "variableName", variableName);
+    printer.Print("$inputType$ *tmp ="
+        "static_cast<$inputType$ *>(mutableRequest);\n",
+        "inputType", descriptor->name());
+    printer.Print(code.c_str());
+  }
 }
 
 }

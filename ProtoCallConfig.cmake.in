@@ -47,6 +47,13 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
     if (_vtk_import)
       set(_vtk_imported TRUE)
     endif()
+
+    # Are we importing any external types.
+    set(_external_protos)
+    extract_external_protos(_external_protos ${_proto_file})
+    foreach(_external_proto ${_external_protos})
+      list(APPEND ${_common_source} ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/${_external_proto}.pb.cc)
+    endforeach()
   endforeach()
 
   list(APPEND ${_common_source}
@@ -87,5 +94,17 @@ macro(extract_service_names services file)
   foreach(_line ${_lines})
     string(REGEX MATCH ${_regex} _match "${_line}")
     list(APPEND ${services} ${CMAKE_MATCH_1})
+  endforeach()
+endmacro()
+
+macro(extract_external_protos _protos _file)
+  set(_regex "^import[\t ]*\"(external.*)\\.proto.*$")
+  file(STRINGS ${_file} _lines REGEX ${_regex})
+
+  set(${_protos})
+
+  foreach(_line ${_lines})
+    string(REGEX MATCH ${_regex} _match "${_line}")
+    list(APPEND ${_protos} ${CMAKE_MATCH_1})
   endforeach()
 endmacro()

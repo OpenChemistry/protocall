@@ -23,6 +23,11 @@ message Void {
 message RequestVTK {
   optional vtk.vtkTable myObject = 1;
   optional vtk.vtkTree myTree = 2;
+  optional vtk.vtkImageData myImageData =  3;
+  optional vtk.vtkPolyData myPolyData = 4;
+  optional vtk.vtkUnstructuredGrid myUnGrid = 5;
+  optional vtk.vtkStructuredGrid myGrid = 6;
+  optional vtk.vtkFloatArray myFloatArray = 7;
 }
 
 message ResponseVTK {
