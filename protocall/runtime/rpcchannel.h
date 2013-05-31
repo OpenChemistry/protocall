@@ -22,7 +22,7 @@
 #include <map>
 
 #include "proto/messages.pb.h"
-#include "runtime/responsehandler.h"
+#include "responsehandler.h"
 
 class vtkDataObject;
 class vtkDataArray;

@@ -1,6 +1,6 @@
 #include <vtkSocketCommunicator.h>
 #include <iostream>
-#include <runtime/vtkcommunicatorchannel.h>
+#include <protocall/runtime/vtkcommunicatorchannel.h>
 #include "SalutationService.pb.h"
 #include <google/protobuf/stubs/common.h>
 #include <vtkTable.h>

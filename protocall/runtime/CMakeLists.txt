@@ -16,7 +16,7 @@ add_library(runtime
   ${MESSAGES_PB_SRC})
   
 
-target_link_libraries(runtime common protobuf vtkParallelCore)
+target_link_libraries(runtime protobuf vtkParallelCore)
 
 PROTOBUF_GENERATE_CPP(MESSAGES_PB_SRC MESSAGES_PB_HDR proto/messages.proto)
 add_custom_target(protobuf_header DEPENDS "${MESSAGES_PB_HDR}")

@@ -14,7 +14,7 @@
 
  ******************************************************************************/
 
-#include "runtime/responsehandler.h"
+#include "responsehandler.h"
 
 namespace ProtoCall {
 namespace Runtime {

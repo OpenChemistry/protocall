@@ -1,10 +1,10 @@
 #include <vtkSocketCommunicator.h>
 #include <iostream>
-#include <runtime/vtkcommunicatorchannel.h>
+#include <protocall/runtime/vtkcommunicatorchannel.h>
 #include "SalutationService.pb.h"
 #include "SalutationService_Dispatcher.pb.h"
 #include <google/protobuf/stubs/common.h>
-#include <runtime/servicemanager.h>
+#include <protocall/runtime/servicemanager.h>
 #include "service.h"
 
 int main(int argc, char *argv[])

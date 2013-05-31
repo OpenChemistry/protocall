@@ -116,12 +116,10 @@ void RpcGenerator::generateServiceHeader(
 
   this->printHeaderGuardStart(printer, headerGuard);
 
-  cerr << "here";
-
   printer.Print("#include \"$protoName$.pb.h\"\n"
                 "#include \"$protoName$_rpc.pb.h\"\n"
-                "#include \"runtime/rpcchannel.h\"\n"
-                "#include \"runtime/service.h\"\n",
+                "#include <protocall/runtime/rpcchannel.h>\n"
+                "#include <protocall/runtime/service.h>\n",
                 "protoName", protoName);
 
   list<string> types = getExternalTypes(descriptor);
@@ -343,7 +341,7 @@ void RpcGenerator::generateDispatcherHeader(google::protobuf::compiler::Generato
   string service = descriptor->name();
 
   printer.Print("#include \"$service$.pb.h\"\n", "service", service);
-  printer.Print("#include <runtime/servicedispatcher.h>\n");
+  printer.Print("#include <protocall/runtime/servicedispatcher.h>\n");
 
   printer.Print("// Dispatcher definition\n"
     "class $service$_Dispatcher: public ProtoCall::Runtime::ServiceDispatcher {\n"

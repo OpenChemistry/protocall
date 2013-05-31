@@ -14,7 +14,7 @@
 
  ******************************************************************************/
 
-#include "runtime/vtkcommunicatorchannel.h"
+#include "vtkcommunicatorchannel.h"
 #include <memory>
 #include <vtkClientSocket.h>
 
