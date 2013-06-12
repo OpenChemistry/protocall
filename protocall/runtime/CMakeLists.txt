@@ -1,6 +1,3 @@
-include_directories("/home/cjh/protobuf-2.5.0/include")
-link_directories("/home/cjh/protobuf-2.5.0/lib")
-
 find_package(VTK COMPONENTS vtkParallelCore)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})

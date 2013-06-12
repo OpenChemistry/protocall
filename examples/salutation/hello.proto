@@ -1,7 +1,4 @@
-import "proto/vtk.proto";
-import "proto/messages.proto";
-
-option cc_generic_services = false;
+import "protocall.proto";
 
 message Request {
   required string name = 1;
@@ -13,11 +10,6 @@ message Response {
 
 message Notification {
   optional string msg = 1;
-}
-
-// This will be in the system proto file
-message Void {
-
 }
 
 message RequestVTK {

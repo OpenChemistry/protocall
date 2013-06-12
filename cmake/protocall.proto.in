@@ -1,0 +1,3 @@
+@ProtoCall_IMPORT_VTK_PROTO@
+@ProtoCall_IMPORT_VOID_PROTO@
+import public "proto/messages.proto";

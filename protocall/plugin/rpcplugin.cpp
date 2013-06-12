@@ -204,6 +204,11 @@ bool RpcPlugin::callGenerators(vector<const FileDescriptor *> *files,
 
 void RpcPlugin::addVtkInserts(CodeGeneratorResponse &response)
 {
+  // Add inserting point for vtk types
+  const FileDescriptor *vtkDescriptors = m_pool.FindFileByName("proto/vtk.proto");
+
+  if (!vtkDescriptors)
+    return;
 
   // Add vtkNew include
   google::protobuf::compiler::CodeGeneratorResponse_File *file
@@ -212,9 +217,6 @@ void RpcPlugin::addVtkInserts(CodeGeneratorResponse &response)
   file->set_name("proto/vtk.pb.h");
   file->set_insertion_point("includes");
   file->set_content("#include <vtkNew.h>\n");
-
-  // Add inserting point for vtk types
-  const FileDescriptor *vtkDescriptors = m_pool.FindFileByName("proto/vtk.proto");
 
   for(int i=0; i<vtkDescriptors->message_type_count(); i++) {
 

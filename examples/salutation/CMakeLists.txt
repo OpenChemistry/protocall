@@ -28,8 +28,6 @@ add_executable(client
   ${_common_source}
   client/client.cpp)
 
-message("${_proxy_source}")
-
 target_link_libraries(client runtime)
 
 add_executable(server

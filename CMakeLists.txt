@@ -9,3 +9,7 @@ include(InstallLocation)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(protocall)
+
+install(FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/protocall.proto.in"
+  DESTINATION "${INSTALL_LIBRARY_DIR}/cmake/protocall")

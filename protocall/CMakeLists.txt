@@ -6,6 +6,7 @@ set(ProtoCall_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
 set(ProtoCall_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 set(ProtoCall_TARGETS_DIR ${CMAKE_BINARY_DIR})
 set(ProtoCall_Proto_DIR ${CMAKE_CURRENT_SOURCE_DIR}/runtime)
+set(ProtoCall_CMAKE_DIR ${CMAKE_SOURCE_DIR}/cmake)
 configure_file(ProtoCallConfig.cmake.in
   ${CMAKE_BINARY_DIR}/ProtoCallConfig.cmake @ONLY)
 
