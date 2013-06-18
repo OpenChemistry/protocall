@@ -71,7 +71,7 @@ bool vtkCommunicatorChannel::send(const rpc::Message *msg)
   }
 
   std::vector<unsigned char> data(size);
-  if(!msg->SerializeToArray(data.data(), size)) {
+  if(!msg->SerializeToArray(&data[0], size)) {
     this->setErrorString("ProtoBuf Error: Error calling SerializeToArray");
     return false;
   }
@@ -83,7 +83,7 @@ bool vtkCommunicatorChannel::send(const rpc::Message *msg)
   }
 
   // Now send the message
-  if (!this->send(data.data(), size)) {
+  if (!this->send(&data[0], size)) {
     this->setErrorString("Error occurred sending message data");
     return false;
   }
@@ -145,12 +145,12 @@ bool vtkCommunicatorChannel::receive(rpc::Message *msg)
   }
 
   std::vector<unsigned char> data(size);
-  if (!this->receive(data.data(), size)) {
+  if (!this->receive(&data[0], size)) {
     this->setErrorString("Unable to receive message data");
     return false;
   }
 
-  if (!msg->ParseFromArray(data.data(), size)) {
+  if (!msg->ParseFromArray(&data[0], size)) {
     this->setErrorString("ProtoBuf Erro: Error calling ParseFromArray");
     return false;
   }
