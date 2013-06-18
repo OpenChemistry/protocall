@@ -1,5 +1,5 @@
 find_package(protobuf REQUIRED NO_MODULE)
-include_directories(${protobuf_INCLUDE_DIRS})
+include_directories(SYSTEM ${protobuf_INCLUDE_DIRS})
 
 # config files for build tree
 set(ProtoCall_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
