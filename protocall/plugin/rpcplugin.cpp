@@ -180,6 +180,8 @@ bool RpcPlugin::addRpcMessageExtensions(const google::protobuf::FileDescriptor *
       addRpcMessageExtensions(method, rpcProto);
     }
   }
+
+  return true;
 }
 
 bool RpcPlugin::callGenerators(vector<const FileDescriptor *> *files,
@@ -401,17 +403,13 @@ void RpcPlugin::addExternalInserts(google::protobuf::compiler::CodeGeneratorResp
 bool RpcPlugin::main(int argc, char *argv[])
 {
   CodeGeneratorRequest request;
-  request.ParseFromIstream(&cin);
-
-  Parser parser;
-
-
-
+  if (!request.ParseFromIstream(&cin))
+	return false;
 
   // Load all the files into the pool
   for(int i=0; i< request.proto_file_size(); i++) {
-    const FileDescriptor *des = m_pool.BuildFile(request.proto_file(i));
-    if (!des) {
+	const FileDescriptor *des = m_pool.BuildFile(request.proto_file(i));
+	if (!des) {
       cerr << "protoc did not provide descriptor for: " << i;
       return false;
     }
@@ -447,7 +445,7 @@ bool RpcPlugin::main(int argc, char *argv[])
   this->addVtkInserts(response);
   this->addExternalInserts(response);
 
-  response.SerializePartialToOstream(&cout);
+  response.SerializeToOstream(&cout);
 
   return true;
 }
