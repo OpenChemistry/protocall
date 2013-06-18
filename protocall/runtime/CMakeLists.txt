@@ -7,7 +7,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_library(runtime
   servicemanager.cpp
   rpcchannel.cpp
-  responsehandler.cpp
   vtkcommunicatorchannel.cpp
   servicedispatcher.cpp
   ${MESSAGES_PB_SRC})

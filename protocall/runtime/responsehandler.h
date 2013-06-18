@@ -27,7 +27,8 @@ class RpcChannel;
 class ResponseHandler
 {
 public:
-  ResponseHandler();
+  ResponseHandler() {};
+  virtual ~ResponseHandler() {};
 
   virtual void handle(RpcChannel *channel, int methodId, google::protobuf::Message *incomingResponse,
       google::protobuf::Message *targetResponse,
