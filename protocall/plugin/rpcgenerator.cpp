@@ -207,6 +207,8 @@ void RpcGenerator::generateServiceProxyCc(google::protobuf::compiler::GeneratorC
 
   cppPrinter.Print("#include \"$header$\"\n", "header", header.c_str());
   cppPrinter.Print("#include \"$class$_Handler.pb.h\"\n\n", "class", descriptor->name());
+  cppPrinter.Print("#include <google/protobuf/stubs/common.h>\n");
+  cppPrinter.Print("using google::protobuf::uint64;\n");
 
   // Add constructor implemention
   cppPrinter.Print("$service$_Proxy::$service$_Proxy(ProtoCall::Runtime::RpcChannel *channel)\n",
@@ -228,7 +230,7 @@ void RpcGenerator::generateServiceProxyCc(google::protobuf::compiler::GeneratorC
     cppPrinter.Print("rpc::Message msg;\n");
     cppPrinter.Print("rpc::Request *request = msg.mutable_request();\n");
     if (!isVoidType(inputType) && !isVoidType(outputType)) {
-      cppPrinter.Print("int64_t id = this->m_channel->nextRequestId();\n");
+      cppPrinter.Print("uint64 id = this->m_channel->nextRequestId();\n");
       cppPrinter.Print("request->set_id(id);\n");
       cppPrinter.Print("$service$_Handler *handler = new $service$_Handler();\n",
           "service", descriptor->name());
@@ -470,6 +472,8 @@ void RpcGenerator::generateDispatcherCc(google::protobuf::compiler::GeneratorCon
   printer.Print("\"\n\n");
   printer.Print("#include <iostream>\n");
   printer.Print("#include <memory>\n");
+  printer.Print("#include <google/protobuf/stubs/common.h>\n");
+  printer.Print("using google::protobuf::uint64;\n");
 
   // Add include for external serializers
   set<string> externalTypes = this->extractExternalTypes(descriptor);
@@ -538,7 +542,7 @@ void RpcGenerator::generateRelyMethod(
     printer.Print("// Prepare the response\n");
     printer.Print("rpc::Message msg;\n");
     printer.Print("rpc::Response *response = msg.mutable_response();\n");
-    printer.Print("int64_t requestId = info.requestMessageEnvelope->request().id();\n");
+    printer.Print("uint64 requestId = info.requestMessageEnvelope->request().id();\n");
     printer.Print("response->set_id(requestId);\n");
     string extensionName = toExtensionName(method->full_name());
     std::ostringstream var;
