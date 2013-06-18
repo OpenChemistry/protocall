@@ -30,6 +30,18 @@
 #include <climits>
 #include <algorithm>
 
+#ifdef WIN32
+#include <fcntl.h>
+#include <io.h>
+
+#ifndef STDIN_FILENO
+#define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO 1
+#endif
+#endif
+
 namespace ProtoCall {
 namespace Compiler {
 
@@ -402,9 +414,15 @@ void RpcPlugin::addExternalInserts(google::protobuf::compiler::CodeGeneratorResp
 
 bool RpcPlugin::main(int argc, char *argv[])
 {
+#ifdef WIN32
+ _setmode(STDIN_FILENO, _O_BINARY);
+ _setmode(STDOUT_FILENO, _O_BINARY);
+#endif
   CodeGeneratorRequest request;
-  if (!request.ParseFromIstream(&cin))
+  if (!request.ParseFromIstream(&cin)) {
+    std::cerr << "Parser error reading CodeGeneratorRequest" <<std::endl;
 	return false;
+	}
 
   // Load all the files into the pool
   for(int i=0; i< request.proto_file_size(); i++) {
