@@ -104,7 +104,7 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
     OUTPUT ${${_common_source}} ${${_service_source}} ${${_proxy_source}}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${_protoc_output_dir}
     COMMAND protoc_compiler
-    ARGS --plugin=${_plugin_exe} --protocallc_out=${_protoc_output_dir}
+    ARGS --plugin=protoc-gen-protocallc=${_plugin_exe} --protocallc_out=${_protoc_output_dir}
       ${_proto_path_args} ${_proto_files}
     DEPENDS ${_proto_files} ${CMAKE_CURRENT_BINARY_DIR}/proto.timestamp
     COMMENT "Running C++ ProtoCall (protocol buffer) compiler"
