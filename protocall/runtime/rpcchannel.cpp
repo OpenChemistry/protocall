@@ -35,7 +35,7 @@ RpcChannel::RpcChannel()
 
 }
 
-uint64_t RpcChannel::nextRequestId()
+uint64 RpcChannel::nextRequestId()
 {
   return m_currentRequestId++;
 }
@@ -59,25 +59,29 @@ bool RpcChannel::send(const rpc::Message *messageEnvelope)
 
 bool RpcChannel::send(vtkDataObject *obj)
 {
-  std::cerr << "Not supported, try a VTK subclass!";
+  this->setErrorString("Not supported, try a VTK subclass!");
+  return false;
 }
 
 bool RpcChannel::receive(vtkDataObject *obj)
 {
-  std::cerr << "Not supported, try a VTK subclass!";
+  this->setErrorString("Not supported, try a VTK subclass!");
+  return false;
 }
 
 bool RpcChannel::send(vtkDataArray *array)
 {
-  std::cerr << "Not supported, try a VTK subclass!";
+  this->setErrorString("Not supported, try a VTK subclass!");
+  return false;
 }
 
 bool RpcChannel::receive(vtkDataArray *array)
 {
-  std::cerr << "Not supported, try a VTK subclass!";
+  this->setErrorString("Not supported, try a VTK subclass!");
+  return false;
 }
 
-void RpcChannel::registerResponseCallback(int64_t requestId,
+void RpcChannel::registerResponseCallback(uint64 requestId,
     google:: protobuf::Message *response, ResponseHandler *handler,
     google::protobuf::Closure *done)
 {
@@ -210,6 +214,8 @@ bool RpcChannel::handleResponse(rpc::Message *messageEnvelope)
 
   // Incoming message can now be cleaned up
   delete messageEnvelope;
+
+  return true;
 }
 
 const std::string& RpcChannel::errorString()

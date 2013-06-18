@@ -17,7 +17,7 @@
 #ifndef RPCCHANNEL_H_
 #define RPCCHANNEL_H_
 
-#include <stdint.h>
+#include <google/protobuf/stubs/common.h>
 #include <stddef.h>
 #include <map>
 
@@ -27,9 +27,10 @@
 class vtkDataObject;
 class vtkDataArray;
 
-
 namespace ProtoCall {
 namespace Runtime {
+
+using google::protobuf::uint64;
 
 struct ResponseCallbackEntry
 {
@@ -44,7 +45,7 @@ public:
   RpcChannel();
 
   // TODO Make these private and use friendship?
-  uint64_t  nextRequestId();
+  uint64  nextRequestId();
   virtual bool send(const rpc::Message *msg);
   virtual bool send(vtkDataObject *obj);
   virtual bool send(vtkDataArray *array);
@@ -61,7 +62,7 @@ public:
   bool handleRequest(rpc::Message *messageEnvelope);
   bool handleResponse(rpc::Message *messageEnvelope);
 
-  void registerResponseCallback(int64_t requestId,
+  void registerResponseCallback(uint64 requestId,
                                 google:: protobuf::Message *response,
                                 ResponseHandler *handler,
                                 google::protobuf::Closure *done);
@@ -70,15 +71,15 @@ public:
   const std::string& errorString();
   void setErrorString(const std::string &errorString);
 
-  typedef std::pair<int64_t,ResponseCallbackEntry> CallBackRecord;
-  typedef std::map<int64_t,ResponseCallbackEntry> CallBackMap;
+  typedef std::pair<uint64,ResponseCallbackEntry> CallBackRecord;
+  typedef std::map<uint64,ResponseCallbackEntry> CallBackMap;
 
 protected:
   virtual bool receive(rpc::Message *msg);
 
 
 private:
-  uint64_t  m_currentRequestId;
+  uint64  m_currentRequestId;
   CallBackMap m_responseCallbacks;
 
   int m_error;
