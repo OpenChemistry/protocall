@@ -1,4 +1,5 @@
 #include <vtkSocketCommunicator.h>
+#include <vtkSocketController.h>
 #include <iostream>
 #include <protocall/runtime/vtkcommunicatorchannel.h>
 #include "SalutationService.pb.h"
@@ -9,7 +10,11 @@
 
 int main(int argc, char *argv[])
 {
+  vtkSocketController *con = vtkSocketController::New();
   vtkSocketCommunicator *com = vtkSocketCommunicator::New();
+  con->SetCommunicator(com);
+  con->Initialize();
+
   com->SetReportErrors(0);
 
   while(true) {
@@ -27,4 +32,7 @@ int main(int argc, char *argv[])
 
     com->CloseConnection();
   }
+
+  com->Delete();
+  con->Delete();
 }

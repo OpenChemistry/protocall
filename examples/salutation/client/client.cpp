@@ -1,4 +1,5 @@
 #include <vtkSocketCommunicator.h>
+#include <vtkSocketController.h>
 #include <iostream>
 #include <protocall/runtime/vtkcommunicatorchannel.h>
 #include "SalutationService.pb.h"
@@ -42,7 +43,11 @@ void testSimple()
 
 void testVtk()
 {
-vtkSocketCommunicator *com = vtkSocketCommunicator::New();
+  vtkSocketController *con = vtkSocketController::New();
+  vtkSocketCommunicator *com = vtkSocketCommunicator::New();
+  con->SetCommunicator(com);
+  con->Initialize();
+
   if(!com->ConnectTo("localhost", 8888)) {
     cout << "Connection failure" << endl;
   }
@@ -89,6 +94,8 @@ vtkSocketCommunicator *com = vtkSocketCommunicator::New();
   }
 
   com->CloseConnection();
+  con->Delete();
+  com->Delete();
 }
 
 int main(int argc, char *argv[])
