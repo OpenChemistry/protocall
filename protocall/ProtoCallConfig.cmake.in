@@ -115,6 +115,10 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
      COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_BINARY_DIR}
      DEPENDS ${_proto_files}
    )
+
+   if (WIN32)
+	 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "PROTOBUF_USE_DLLS")
+endif()
 endmacro()
 
 macro(extract_service_names services file)
