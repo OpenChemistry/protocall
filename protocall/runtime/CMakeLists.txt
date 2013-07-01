@@ -10,7 +10,7 @@ add_library(runtime
   vtkcommunicatorchannel.cpp
   servicedispatcher.cpp
   ${MESSAGES_PB_SRC})
-  
+
 
 target_link_libraries(runtime protobuf vtkParallelCore)
 
@@ -25,10 +25,10 @@ install(TARGETS runtime
   ARCHIVE DESTINATION ${INSTALL_ARCHIVE_DIR})
 
 install(FILES
-  vtkcommunicatorchannel.h
-  rpcchannel.h
-  rpcmanager.h
-  DESTINATION ${INSTALL_INCLUDE_DIR})
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkcommunicatorchannel.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rpcchannel.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/servicemanager.h"
+  DESTINATION ${INSTALL_INCLUDE_DIR}/protocall)
 
 install(FILES
   proto/messages.proto

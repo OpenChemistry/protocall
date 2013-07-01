@@ -30,8 +30,8 @@ configure_file(ProtoCallConfig.cmake.in
 
 # export targets file in build tree
 install(FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/protocall/serialization/serializer.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/protocall/serialization/deserializer.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/serialization/serializer.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/serialization/deserializer.h"
   DESTINATION "${INSTALL_INCLUDE_DIR}/protocall/serialization")
 
 install(FILES
