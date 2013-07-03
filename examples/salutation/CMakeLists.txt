@@ -12,7 +12,7 @@ find_package(protobuf REQUIRED NO_MODULE)
 include_directories(${protobuf_INCLUDE_DIRS})
 
 find_package(ProtoCall REQUIRED NO_MODULE)
-include_directories(${ProtoCall_INCLUDE_DIRS})
+include_directories(SYSTEM ${ProtoCall_INCLUDE_DIRS})
 
 
 protocallc(_common_source
