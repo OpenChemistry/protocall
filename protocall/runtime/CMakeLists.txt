@@ -28,7 +28,7 @@ install(FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkcommunicatorchannel.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/rpcchannel.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/servicemanager.h"
-  DESTINATION ${INSTALL_INCLUDE_DIR}/protocall)
+  DESTINATION ${INSTALL_INCLUDE_DIR}/protocall/runtime)
 
 install(FILES
   proto/messages.proto
