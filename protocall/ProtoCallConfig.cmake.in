@@ -111,7 +111,6 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
 
    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/proto.timestamp
      COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/proto.timestamp
-     COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_BINARY_DIR}
      DEPENDS ${_proto_files}
    )
 
@@ -135,7 +134,6 @@ endmacro()
 macro(extract_external_protos _protos _file)
   set(_regex "^import[\t ]+\"(external[^\\\\.]*).*$") #)\\\\.proto.*$")
   set(${_protos})
-  set(${_lines})
 
   file(STRINGS ${_file} _raw_lines)
   foreach(_line ${_raw_lines})
