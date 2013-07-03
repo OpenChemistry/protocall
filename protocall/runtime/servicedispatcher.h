@@ -17,7 +17,7 @@
 #ifndef SERVICEDISPATCHER_H_
 #define SERVICEDISPATCHER_H_
 
-#include "proto/messages.pb.h"
+#include "protocall/messages.pb.h"
 
 namespace ProtoCall {
 namespace Runtime {

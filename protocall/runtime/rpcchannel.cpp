@@ -17,6 +17,7 @@
 #include "rpcchannel.h"
 #include "servicemanager.h"
 #include "servicedispatcher.h"
+#include "responsehandler.h"
 #include <google/protobuf/message.h>
 
 #include <iostream>

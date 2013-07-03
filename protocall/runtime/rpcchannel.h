@@ -21,14 +21,15 @@
 #include <stddef.h>
 #include <map>
 
-#include "proto/messages.pb.h"
-#include "responsehandler.h"
+#include "protocall/messages.pb.h"
 
 class vtkDataObject;
 class vtkDataArray;
 
 namespace ProtoCall {
 namespace Runtime {
+
+class ResponseHandler;
 
 using google::protobuf::uint64;
 

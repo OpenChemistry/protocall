@@ -2,7 +2,7 @@ find_package(VTK COMPONENTS vtkParallelCore)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(${VTK_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/proto)
 
 add_library(runtime
   servicemanager.cpp
@@ -14,7 +14,8 @@ add_library(runtime
 
 target_link_libraries(runtime protobuf vtkParallelCore)
 
-PROTOBUF_GENERATE_CPP(MESSAGES_PB_SRC MESSAGES_PB_HDR proto/messages.proto)
+PROTOBUF_GENERATE_CPP(MESSAGES_PB_SRC MESSAGES_PB_HDR
+  proto/protocall/messages.proto)
 add_custom_target(protobuf_header DEPENDS "${MESSAGES_PB_HDR}")
 add_dependencies(runtime protobuf_header)
 
@@ -31,5 +32,7 @@ install(FILES
   DESTINATION ${INSTALL_INCLUDE_DIR}/protocall/runtime)
 
 install(FILES
-  proto/messages.proto
-  DESTINATION "${INSTALL_LIBRARY_DIR}/proto")
+  proto/protocall/messages.proto
+  proto/protocall/void.proto
+  proto/protocall/vtk.proto
+  DESTINATION "${INSTALL_LIBRARY_DIR}/proto/protocall")

@@ -219,7 +219,7 @@ bool RpcPlugin::callGenerators(vector<const FileDescriptor *> *files,
 void RpcPlugin::addVtkInserts(CodeGeneratorResponse &response)
 {
   // Add inserting point for vtk types
-  const FileDescriptor *vtkDescriptors = m_pool.FindFileByName("proto/vtk.proto");
+  const FileDescriptor *vtkDescriptors = m_pool.FindFileByName("protocall/vtk.proto");
 
   if (!vtkDescriptors)
     return;
@@ -228,7 +228,7 @@ void RpcPlugin::addVtkInserts(CodeGeneratorResponse &response)
   google::protobuf::compiler::CodeGeneratorResponse_File *file
       = response.add_file();
 
-  file->set_name("proto/vtk.pb.h");
+  file->set_name("protocall/vtk.pb.h");
   file->set_insertion_point("includes");
   file->set_content("#include <vtkNew.h>\n");
 
@@ -240,14 +240,14 @@ void RpcPlugin::addVtkInserts(CodeGeneratorResponse &response)
     google::protobuf::compiler::CodeGeneratorResponse_File *file
         = response.add_file();
 
-    file->set_name("proto/vtk.pb.h");
+    file->set_name("protocall/vtk.pb.h");
     file->set_insertion_point("includes");
     string include = string("#include <") + vtkType + ".h>\n";
     file->set_content(include);
 
     // Add inserting point for vtkDataObject accessors
     file = response.add_file();
-    file->set_name("proto/vtk.pb.h");
+    file->set_name("protocall/vtk.pb.h");
     string insertionPoint = "class_scope:vtk.";
     insertionPoint += vtkType;
     file->set_insertion_point(insertionPoint);

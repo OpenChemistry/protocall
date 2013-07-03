@@ -68,21 +68,21 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
   endforeach()
 
   list(APPEND ${_common_source}
-    ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/proto/messages.pb.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/protocall/messages.pb.cc
     ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/protocall.pb.cc)
 
   set(ProtoCall_IMPORT_VTK_PROTO)
   if (_vtk_type)
     list(APPEND ${_common_source}
-      ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/proto/vtk.pb.cc)
-    set(ProtoCall_IMPORT_VTK_PROTO "import public \"proto/vtk.proto\";")
+      ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/protocall/vtk.pb.cc)
+    set(ProtoCall_IMPORT_VTK_PROTO "import public \"protocall/vtk.proto\";")
   endif()
 
   set(ProtoCall_IMPORT_VOID_PROTO)
   if (_void_type)
     list(APPEND ${_common_source}
-      ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/proto/void.pb.cc)
-    set(ProtoCall_IMPORT_VOID_PROTO "import public \"proto/void.proto\";")
+      ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/protocall/void.pb.cc)
+    set(ProtoCall_IMPORT_VOID_PROTO "import public \"protocall/void.proto\";")
   endif()
 
   configure_file(${ProtoCall_CMAKE_DIR}/protocall.proto.in
