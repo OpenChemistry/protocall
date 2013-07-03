@@ -36,11 +36,13 @@ public:
   bool send(const void *data, int size);
   bool send(unsigned int size);
 
-  bool receive(bool nonBlocking = true);
   bool receive(vtkDataObject *obj);
   bool receive(vtkDataArray *array);
   bool receive(void *data, int size);
   bool receive(unsigned int *size);
+  bool select();
+
+  vtkSocketCommunicator * communicator();
 
 protected:
   bool receive(rpc::Message *msg);
@@ -49,7 +51,7 @@ private:
   vtkSocketCollection *m_collection;
 
 
-  bool select();
+
 };
 
 } /* namespace Runtime */

@@ -158,18 +158,6 @@ bool vtkCommunicatorChannel::receive(rpc::Message *msg)
   return true;
 }
 
-bool vtkCommunicatorChannel::receive(bool nonBlocking)
-{
-  bool rc = true;
-
-  while(!nonBlocking  && !select());
-
-  if (select())
-    rc = (RpcChannel::receive(nonBlocking) == 1);
-
-  return rc;
-}
-
 bool vtkCommunicatorChannel::receive(vtkDataObject *obj)
 {
   if (!m_communicator->Receive(obj, 1, DATAOBJECT_TAG)) {
@@ -190,6 +178,11 @@ bool vtkCommunicatorChannel::receive(vtkDataArray *array)
   return true;
 }
 
+
+vtkSocketCommunicator *vtkCommunicatorChannel::communicator()
+{
+  return m_communicator;
+}
 
 bool vtkCommunicatorChannel::select()
 {
