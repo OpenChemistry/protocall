@@ -23,15 +23,16 @@ protocallc(_common_source
 
 include_directories(${_include_dir})
 
+add_library(runtime ${_common_source})
+target_link_libraries(runtime ${ProtoCall_LIBRARIES})
+
 add_executable(client
   ${_proxy_source}
-  ${_common_source}
   client/client.cpp)
 
 target_link_libraries(client runtime)
 
 add_executable(server
-  ${_common_source}
   ${_service_source}
   server/service.cpp
   server/server.cpp)
