@@ -40,6 +40,8 @@ public:
   bool receive(vtkDataArray *array);
   bool receive(void *data, int size);
   bool receive(unsigned int *size);
+  bool receive(bool nonBlocking = true);
+
   bool select();
 
   vtkSocketCommunicator * communicator();

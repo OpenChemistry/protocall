@@ -189,5 +189,10 @@ bool vtkCommunicatorChannel::select()
   return (m_collection->SelectSockets(300) == 1);
 }
 
+bool vtkCommunicatorChannel::receive(bool nonBlocking)
+{
+  return RpcChannel::receive(nonBlocking);
+}
+
 } /* namespace Runtime */
 } /* namespace ProtoCall */
