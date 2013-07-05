@@ -756,7 +756,7 @@ void RpcGenerator::generateResponseHandlerHeader(google::protobuf::compiler::Gen
 
   printer.Print("#include \"$class$.pb.h\"\n", "class",
       cls);
-
+  printer.PrintRaw("#include <protocall/runtime/responsehandler.h>\n");
   printer.Print("// Handler definition\n"
     "class $class$_Handler: public ProtoCall::Runtime::ResponseHandler {\n"
     "public:\n",

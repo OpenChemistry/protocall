@@ -2,11 +2,14 @@ if(NOT TARGET runtime)
   include("@ProtoCall_TARGETS_DIR@/ProtoCallTargets.cmake")
 endif()
 
-set(ProtoCall_INCLUDE_DIRS    "@ProtoCall_INCLUDE_DIRS@")
-set(ProtoCall_LIBRARY_DIR     "@ProtoCall_LIBRARY_DIR@")
-set(ProtoCall_Proto_DIR @ProtoCall_Proto_DIR@)
+set(ProtoCall_INCLUDE_DIRS "@ProtoCall_INCLUDE_DIRS@")
+set(ProtoCall_LIBRARY_DIR "@ProtoCall_LIBRARY_DIR@")
+set(ProtoCall_PROTO_DIR @ProtoCall_PROTO_DIR@)
 set(ProtoCall_PLUGIN_EXE @ProtoCall_PLUGIN_EXE@)
 set(ProtoCall_CMAKE_DIR @ProtoCall_CMAKE_DIR@)
+set(ProtoCall_SOURCE_DIR "@ProtoCall_SOURCE_DIR@")
+set(ProtoCall_RUNTIME_SOURCE "@ProtoCall_RUNTIME_SOURCE@")
+set(ProtoCall_LIBRARIES protobuf vtkParallelCore)
 set(protobuf_DIR @protobuf_DIR@)
 
 macro(protocallc _common_source _service_source _proxy_source _include_dir)
@@ -88,7 +91,7 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
   configure_file(${ProtoCall_CMAKE_DIR}/protocall.proto.in
     ${CMAKE_CURRENT_BINARY_DIR}/protocall.proto)
 
-  list(APPEND _proto_dirs ${ProtoCall_Proto_DIR})
+  list(APPEND _proto_dirs ${ProtoCall_PROTO_DIR})
   list(APPEND _proto_dirs ${CMAKE_CURRENT_BINARY_DIR})
   set(_proto_path_args)
 
@@ -114,8 +117,13 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
      DEPENDS ${_proto_files}
    )
 
-   if (WIN32)
-	 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "PROTOBUF_USE_DLLS")
+  # Add runtime source
+  foreach(_file ${ProtoCall_RUNTIME_SOURCE})
+    list(APPEND ${_common_source} "${ProtoCall_SOURCE_DIR}/${_file}")
+  endforeach()
+
+  if (WIN32)
+    set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "PROTOBUF_USE_DLLS")
 endif()
 endmacro()
 

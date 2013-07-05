@@ -1,34 +1,10 @@
-find_package(VTK COMPONENTS vtkParallelCore)
-
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
-include_directories(${VTK_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/proto)
-
-add_library(runtime
-  servicemanager.cpp
-  rpcchannel.cpp
-  vtkcommunicatorchannel.cpp
-  servicedispatcher.cpp
-  ${MESSAGES_PB_SRC})
-
-
-target_link_libraries(runtime protobuf vtkParallelCore)
-
-PROTOBUF_GENERATE_CPP(MESSAGES_PB_SRC MESSAGES_PB_HDR
-  proto/protocall/messages.proto)
-add_custom_target(protobuf_header DEPENDS "${MESSAGES_PB_HDR}")
-add_dependencies(runtime protobuf_header)
-
-install(TARGETS runtime
-  EXPORT "ProtoCallTargets"
-  RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR}
-  LIBRARY DESTINATION ${INSTALL_LIBRARY_DIR}
-  ARCHIVE DESTINATION ${INSTALL_ARCHIVE_DIR})
-
 install(FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkcommunicatorchannel.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/rpcchannel.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/servicemanager.h"
+  vtkcommunicatorchannel.h
+  rpcchannel.h
+  servicemanager.h
+  service.h
+  servicedispatcher.h
+  responsehandler.h
   DESTINATION ${INSTALL_INCLUDE_DIR}/protocall/runtime)
 
 install(FILES
@@ -36,3 +12,17 @@ install(FILES
   proto/protocall/void.proto
   proto/protocall/vtk.proto
   DESTINATION "${INSTALL_LIBRARY_DIR}/proto/protocall")
+
+set(_src
+  servicemanager.cpp
+  rpcchannel.cpp
+  vtkcommunicatorchannel.cpp
+  servicedispatcher.cpp)
+
+# Set in parent scope so we can using it when configuring the config file
+set(ProtoCall_RUNTIME_SOURCE ${_src} PARENT_SCOPE)
+
+install(FILES
+  ${_src}
+  DESTINATION "${INSTALL_SOURCE_DIR}/protocall/runtime")
+
