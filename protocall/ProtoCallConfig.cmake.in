@@ -151,7 +151,7 @@ macro(extract_external_protos _protos _file)
       set(_line ${CMAKE_MATCH_1})
     endif()
 
-    string(REGEX MATCH ${_regex} _match ${_line})
+    string(REGEX MATCH ${_regex} _match "${_line}")
     if (_match)
       list(APPEND ${_protos} ${CMAKE_MATCH_1})
     endif()
