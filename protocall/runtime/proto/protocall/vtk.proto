@@ -7,6 +7,7 @@ message vtkImageData {}
 message vtkPolyData {}
 message vtkUnstructuredGrid {}
 message vtkStructuredGrid {}
+message vtkMultiBlockDataSet {}
 
 // Data arrays
 message vtkBitArray {}
