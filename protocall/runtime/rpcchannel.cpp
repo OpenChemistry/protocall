@@ -203,9 +203,18 @@ bool RpcChannel::handleResponse(rpc::Message *messageEnvelope)
 
   ResponseCallbackEntry entry = it->second;
 
+  int32 errorCode = 0;
+  std::string errorString;
+
+  if (response->has_errorcode())
+    errorCode = response->errorcode();
+
+  if (response->has_errorstring())
+    errorString = response->errorstring();
+
   // Call response handler
   entry.handler->handle(this, descriptor->number(), data, entry.response,
-      entry.done);
+      errorCode, errorString, entry.done);
 
   // remove from map
   m_responseCallbacks.erase(it);

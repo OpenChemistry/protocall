@@ -32,6 +32,7 @@ public:
 
   virtual void handle(RpcChannel *channel, int methodId, google::protobuf::Message *incomingResponse,
       google::protobuf::Message *targetResponse,
+      google::protobuf::int32 errorCode, std::string errorString,
       google::protobuf::Closure *callback) = 0;
 };
 

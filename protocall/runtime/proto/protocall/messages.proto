@@ -14,6 +14,8 @@ message Request {
 
 message Response {
   optional int64 id = 1;
+  optional int32 errorCode = 2;
+  optional string errorString = 3;
 
   extensions 8 to max;
 }

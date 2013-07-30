@@ -36,7 +36,7 @@ string toExtensionName(string methodName)
   return methodName;
 }
 
-void replace(string &str, const string &search, const string &replace)
+string replace(string &str, const string &search, const string &replace)
 {
   size_t pos = 0;
   while((pos = str.find(search, pos)) != std::string::npos)
@@ -44,6 +44,8 @@ void replace(string &str, const string &search, const string &replace)
     str.replace(pos, search.length(), replace);
     pos += replace.length();
   }
+
+  return str;
 }
 
 string externalTypeToClass(const string &name)
@@ -80,7 +82,7 @@ string externalTypeToHeaderPath(const string &type)
 
 string extractClassName(const string &type)
 {
-  string className;
+  string className = type;
   size_t pos = type.find_last_of('.');
 
   if (pos != string::npos)
@@ -102,6 +104,13 @@ vector<string> extractNamespaces(const string &type)
   }
 
   return namespaces;
+}
+
+std::string toHeader(std::string type)
+{
+  size_t pos = type.find(".proto");
+
+  return type.replace(pos, string::npos, ".pb.h");
 }
 
 }

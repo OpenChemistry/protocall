@@ -28,7 +28,7 @@ bool isVoidType(std::string &type);
 
 std::string toExtensionName(std::string methodName);
 
-void replace(std::string &str, const std::string &search,
+std::string replace(std::string &str, const std::string &search,
     const std::string &replace);
 
 std::string externalTypeToClass(const std::string &name);
@@ -38,6 +38,8 @@ std::string externalTypeToHeaderPath(const std::string &type);
 std::string extractClassName(const std::string &type);
 
 std::vector<std::string> extractNamespaces(const std::string &type);
+
+std::string toHeader(std::string type);
 }
 }
 

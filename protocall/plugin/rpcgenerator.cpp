@@ -547,8 +547,17 @@ void RpcGenerator::generateRelyMethod(
     string extensionName = toExtensionName(method->full_name());
     std::ostringstream var;
     var << "tmp" << j;
+
     printer.Print("$responseType$ *$var$ = static_cast<$responseType$ *>(info.response);\n",
         "responseType", outputTypeName, "var", var.str());
+
+    // Add error info
+    printer.Print("if ($var$->hasError()) {\n", "var", var.str());
+    printer.Indent();
+    printer.Print("response->set_errorstring($var$->errorString());\n", "var", var.str());
+    printer.Print("response->set_errorcode($var$->errorCode());\n", "var", var.str());
+    printer.Outdent();
+    printer.Print("}\n");
     printer.Print("response->SetAllocatedExtension($extensionName$, $var$);\n",
         "extensionName", extensionName + "_response", "var", var.str());
     printer.Print("// Make sure request is cleaned up\n");
@@ -713,11 +722,11 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
   }
 
   if (hasVtkTypes) {
-    printer.Print("::google::protobuf::Message *mutableRequest "
+    printer.Print("::google::protobuf::Message *mut "
         "= const_cast< google::protobuf::Message *>($variableName$);\n",
         "variableName", variableName);
     printer.Print("$inputType$ *tmp ="
-        "static_cast<$inputType$ *>(mutableRequest);\n",
+        "static_cast<$inputType$ *>(mut);\n",
         "inputType", descriptor->name());
     printer.Print(code.c_str());
   }
@@ -726,6 +735,8 @@ void RpcGenerator::generateReceiveVtkBlock(const string &variableName,
 const static string handleSignature = "handle(ProtoCall::Runtime::RpcChannel *channel, "
     "int methodId, google::protobuf::Message *incomingResponse,"
     "google::protobuf::Message *targetResponse,"
+    "google::protobuf::int32 errorCode,"
+    "std::string errorString,"
     "google::protobuf::Closure *callback)";
 
 void RpcGenerator::generateResponseHandler(google::protobuf::compiler::GeneratorContext *generator_context,
@@ -828,6 +839,15 @@ void RpcGenerator::generateResponseHandlerCpp(google::protobuf::compiler::Genera
     printer.Print("// $methodName$\n", "methodName",  methodName);
 
     printer.Print("targetResponse->CopyFrom(const_cast<const google::protobuf::Message&>(*incomingResponse));\n");
+
+    printer.Print("::google::protobuf::Message *mutableResponse "
+        "= const_cast< google::protobuf::Message *>(targetResponse);\n");
+    printer.Print("$responseType$ *responseType ="
+        "static_cast<$responseType$ *>(mutableResponse);\n",
+        "responseType", outputTypeName);
+    printer.Print("responseType->setErrorCode(errorCode);\n");
+    printer.Print("responseType->setErrorString(errorString);\n");
+
 
     const Descriptor *responseType = method->output_type();
     this->generateReceiveVtkBlock("targetResponse", "channel", responseType,

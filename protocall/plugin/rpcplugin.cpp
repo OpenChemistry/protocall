@@ -412,6 +412,80 @@ void RpcPlugin::addExternalInserts(google::protobuf::compiler::CodeGeneratorResp
   }
 }
 
+void RpcPlugin::addResponseErrorInserts(google::protobuf::compiler::CodeGeneratorResponse &response,
+                                        const string &header, const string &type)
+{
+  google::protobuf::compiler::CodeGeneratorResponse_File *file
+    = response.add_file();
+
+  file->set_name(header);
+  string insertionPoint = "class_scope:" + type;
+  file->set_insertion_point(insertionPoint);
+
+  string insert;
+  io::StringOutputStream stream(&insert);
+  io::Printer printer(&stream, '$');
+
+  printer.Print("// Holder class to ensure initialization of members\n");
+  printer.Print("private:\n");
+  printer.Indent();
+  printer.Print("class ErrorHolder {\n");
+  printer.Indent();
+  printer.Print("public:\n");
+  printer.Indent();
+  printer.Print("ErrorHolder() : errorCode(0), errorString(\"\") {};\n");
+  printer.Print("::google::protobuf::int32 errorCode;\n");
+  printer.Print("::std::string errorString;\n");
+  printer.Outdent();
+  printer.Print("};\n");
+  printer.Outdent();
+  printer.Print("ErrorHolder m_holder;\n");
+  printer.Outdent();
+  printer.Print("public:\n");
+  printer.Indent();
+  printer.Print("void setErrorCode(::google::protobuf::int32 error) { m_holder.errorCode = error; };\n");
+  printer.Print("void setErrorString(::std::string error) { m_holder.errorString = error; };\n");
+  printer.Print("::google::protobuf::int32 errorCode() { return m_holder.errorCode; };\n");
+  printer.Print("::std::string errorString() { return m_holder.errorString; };\n");
+  printer.Print("bool hasError() { return m_holder.errorCode != 0 || m_holder.errorString.length() != 0; };\n");
+  printer.Outdent();
+
+  file->set_content(insert.c_str());
+}
+
+void RpcPlugin::addResponseErrorInserts(google::protobuf::compiler::CodeGeneratorResponse &response)
+{
+
+  set<string> responseTypes;
+
+  for (vector<const FileDescriptor *>::iterator it =  m_fileDescriptors.begin();
+      it != m_fileDescriptors.end(); it++) {
+    const FileDescriptor *file = *it;
+
+    string header = toHeader(file->name());
+
+    for(int i=0; i<file->service_count(); i++  ) {
+      const google::protobuf::ServiceDescriptor *descriptor = file->service(i);
+        for(int j=0; j<descriptor->method_count(); j++) {
+          const MethodDescriptor *method = descriptor->method(j);
+
+          const Descriptor *responseType = method->output_type();
+
+          string name = responseType->full_name();
+
+          // Skip Void as its a dummy type
+          if (name == "Void")
+            continue;
+
+          if (responseTypes.find(name) == responseTypes.end()) {
+            this->addResponseErrorInserts(response, header, name);
+            responseTypes.insert(name);
+          }
+        }
+    }
+  }
+}
+
 bool RpcPlugin::main(int argc, char *argv[])
 {
 #ifdef WIN32
@@ -462,6 +536,7 @@ bool RpcPlugin::main(int argc, char *argv[])
 
   this->addVtkInserts(response);
   this->addExternalInserts(response);
+  this->addResponseErrorInserts(response);
 
   response.SerializeToOstream(&cout);
 

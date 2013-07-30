@@ -59,6 +59,10 @@ public:
   void addExternalInsert(const google::protobuf::FileDescriptor *fileDes,
       google::protobuf::compiler::CodeGeneratorResponse &response);
 
+  void addResponseErrorInserts(google::protobuf::compiler::CodeGeneratorResponse &response,
+                                 const string &header, const string &type);
+  void addResponseErrorInserts(google::protobuf::compiler::CodeGeneratorResponse &response);
+
   bool main(int argc, char *argv[]) ;
 
 private:
