@@ -11,7 +11,7 @@ add_executable(protoc-gen-protocallc
   rpcgenerator.cpp
   utilities.cpp)
 
-if (WIN32)
+if (WIN32 AND BUILD_SHARED_LIBS)
   set_target_properties(protoc-gen-protocallc PROPERTIES
                        COMPILE_DEFINITIONS "PROTOBUF_USE_DLLS")
 endif()

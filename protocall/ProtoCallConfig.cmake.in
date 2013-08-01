@@ -122,7 +122,7 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
     list(APPEND ${_common_source} "${ProtoCall_SOURCE_DIR}/${_file}")
   endforeach()
 
-  if (WIN32)
+  if (WIN32 AND BUILD_SHARED_LIBS)
     set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "PROTOBUF_USE_DLLS")
 endif()
 endmacro()
