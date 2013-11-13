@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 
 using namespace std;
@@ -32,6 +33,11 @@ namespace Runtime {
 
 RpcChannel::RpcChannel()
   : m_currentRequestId(0)
+{
+
+}
+
+RpcChannel::~RpcChannel()
 {
 
 }
@@ -168,7 +174,9 @@ bool RpcChannel::handleRequest(rpc::Message *messageEnvelope)
   int methodId = descriptor->number();
   ServiceDispatcher *dispatcher = mgr->lookupServiceDispatcher(methodId);
   if(!dispatcher) {
-    this->setErrorString("Can load dispatcher for methodId: " + methodId);
+    std::ostringstream msg;
+    msg << "Can't load dispatcher for methodId: " << methodId;
+    this->setErrorString(msg.str());
     return false;
   }
 
@@ -186,8 +194,9 @@ bool RpcChannel::handleResponse(rpc::Message *messageEnvelope)
   rpc::Response *response = messageEnvelope->mutable_response();
   CallBackMap::iterator it = m_responseCallbacks.find(response->id());
   if (it == m_responseCallbacks.end()) {
-    this->setErrorString("Received unexpected response with id: " +
-        response->id());
+    std::ostringstream msg;
+    msg << "Received unexpected response with id: " << response->id();
+    this->setErrorString(msg.str());
     return false;
   }
 
