@@ -229,7 +229,7 @@ void RpcGenerator::generateServiceProxyCc(google::protobuf::compiler::GeneratorC
     string outputType = method->output_type()->name();
     cppPrinter.Print("rpc::Message msg;\n");
     cppPrinter.Print("rpc::Request *request = msg.mutable_request();\n");
-    if (!isVoidType(inputType) && !isVoidType(outputType)) {
+    if (!isVoidType(inputType) || !isVoidType(outputType)) {
       cppPrinter.Print("uint64 id = this->m_channel->nextRequestId();\n");
       cppPrinter.Print("request->set_id(id);\n");
       cppPrinter.Print("$service$_Handler *handler = new $service$_Handler();\n",

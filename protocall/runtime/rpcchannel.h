@@ -44,6 +44,7 @@ class RpcChannel
 {
 public:
   RpcChannel();
+  virtual ~RpcChannel();
 
   // TODO Make these private and use friendship?
   uint64  nextRequestId();
