@@ -484,13 +484,11 @@ void RpcGenerator::generateDispatcherCc(google::protobuf::compiler::GeneratorCon
   for(set<string>::const_iterator it = externalTypes.begin();
       it != externalTypes.end(); ++it)
   {
-    string path = externalTypeToHeaderPath(*it);
     string cls = extractClassName(*it);
     transform(cls.begin(), cls.end(), cls.begin(),
       ::tolower);
 
-    printer.Print("#include <$path$$cls$serializer.h>\n", "path", path,
-        "cls", cls);
+    printer.Print("#include <$cls$serializer.h>\n", "cls", cls);
   }
 
   // Add constructor implemention
@@ -805,13 +803,11 @@ void RpcGenerator::generateResponseHandlerCpp(google::protobuf::compiler::Genera
   for(set<string>::const_iterator it = externalTypes.begin();
       it != externalTypes.end(); ++it)
   {
-    string path = externalTypeToHeaderPath(*it);
     string cls = extractClassName(*it);
     transform(cls.begin(), cls.end(), cls.begin(),
       ::tolower);
 
-    printer.Print("#include <$path$$cls$deserializer.h>\n", "path", path,
-        "cls", cls);
+    printer.Print("#include <$cls$deserializer.h>\n", "cls", cls);
   }
 
   // Constructor
