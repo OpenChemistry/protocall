@@ -141,6 +141,9 @@ void RpcGenerator::generateServiceHeader(
 
   printer.Indent();
 
+  printer.Print("virtual ~$service$() {};\n","service",
+      descriptor->full_name());
+
   for(int j=0; j<descriptor->method_count(); j++) {
     const MethodDescriptor *method = descriptor->method(j);
 
