@@ -19,9 +19,18 @@ if (WIN32 AND BUILD_SHARED_LIBS)
                        COMPILE_DEFINITIONS "PROTOBUF_USE_DLLS")
 endif()
 
-target_link_libraries(protoc-gen-protocallc
-  protobuf
-  protoc_lib)
+if( TARGET protobuf AND TARGET protoc_lib)
+  target_link_libraries(protoc-gen-protocallc
+    LINK_PUBLIC
+    protobuf
+    protoc_lib)
+else()
+  target_link_libraries(protoc-gen-protocallc
+    LINK_PUBLIC
+    ${PROTOBUF_LIBRARIES}
+    ${PROTOBUF_PROTOC_LIBRARIES}
+    )
+endif()
 
 install(TARGETS protoc-gen-protocallc
   EXPORT "ProtoCallTargets"

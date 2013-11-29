@@ -1,4 +1,4 @@
-find_package(protobuf REQUIRED NO_MODULE)
+find_package(protobuf REQUIRED)
 include_directories(SYSTEM ${protobuf_INCLUDE_DIRS})
 
 add_subdirectory(runtime)
