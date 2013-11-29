@@ -101,11 +101,17 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
 
   set(_protoc_output_dir "${CMAKE_CURRENT_BINARY_DIR}/protoc_output")
   get_target_property(_plugin_exe protoc-gen-protocallc LOCATION)
-
+  
+  if(EXISTS "${PROTOBUF_PROTOC_EXECUTABLE}")
+    set(protoc_compiler "${PROTOBUF_PROTOC_EXECUTABLE}")
+  else()
+    set(protoc_compiler "protoc_compiler")
+  endif()
+  
   add_custom_command(
     OUTPUT ${${_common_source}} ${${_service_source}} ${${_proxy_source}}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${_protoc_output_dir}
-    COMMAND protoc_compiler
+    COMMAND ${protoc_compiler}
     ARGS --plugin=protoc-gen-protocallc=${_plugin_exe} --protocallc_out=${_protoc_output_dir}
       ${_proto_path_args} ${_proto_files}
     DEPENDS ${_proto_files} ${CMAKE_CURRENT_BINARY_DIR}/proto.timestamp
