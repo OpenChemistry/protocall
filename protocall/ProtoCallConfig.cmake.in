@@ -9,7 +9,9 @@ set(ProtoCall_PLUGIN_EXE @ProtoCall_PLUGIN_EXE@)
 set(ProtoCall_CMAKE_DIR @ProtoCall_CMAKE_DIR@)
 set(ProtoCall_SOURCE_DIR "@ProtoCall_SOURCE_DIR@")
 set(ProtoCall_RUNTIME_SOURCE "@ProtoCall_RUNTIME_SOURCE@")
-set(ProtoCall_LIBRARIES protobuf vtkParallelCore)
+set(ProtoCall_VTK_RUNTIME_SOURCE "@ProtoCall_VTK_RUNTIME_SOURCE@")
+set(ProtoCall_LIBRARIES protobuf)
+set(ProtoCall_VTK_LIBRARIES vtkParallelCore)
 set(protobuf_DIR @protobuf_DIR@)
 
 macro(protocallc _common_source _service_source _proxy_source _include_dir)
@@ -79,6 +81,12 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
     list(APPEND ${_common_source}
       ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/protocall/vtk.pb.cc)
     set(ProtoCall_IMPORT_VTK_PROTO "import public \"protocall/vtk.proto\";")
+    
+    #update the sources to include the vtk communicator
+    list(APPEND ProtoCall_RUNTIME_SOURCE "${ProtoCall_VTK_RUNTIME_SOURCE}")
+    
+    #update the linking to include vtk libraries
+    list(APPEND ProtoCall_LIBRARIES "${ProtoCall_VTK_LIBRARIES}")
   endif()
 
   set(ProtoCall_IMPORT_VOID_PROTO)

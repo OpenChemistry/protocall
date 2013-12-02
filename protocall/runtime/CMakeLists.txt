@@ -1,3 +1,4 @@
+
 install(FILES
   vtkcommunicatorchannel.h
   rpcchannel.h
@@ -16,11 +17,15 @@ install(FILES
 set(_src
   servicemanager.cpp
   rpcchannel.cpp
-  vtkcommunicatorchannel.cpp
   servicedispatcher.cpp)
+
+set(_vtk_src
+   vtkcommunicatorchannel.cpp
+   )
 
 # Set in parent scope so we can using it when configuring the config file
 set(ProtoCall_RUNTIME_SOURCE ${_src} PARENT_SCOPE)
+set(ProtoCall_VTK_RUNTIME_SOURCE ${_vtk_src} PARENT_SCOPE)
 
 install(FILES
   ${_src}
