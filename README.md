@@ -2,7 +2,7 @@
 
 ProtoCall uses protobuf to provide an asynchronous RPC framework for execution of remote C++ methods. Services are defined in the protocol buffer language which are then used to generate proxy code and service stubs via a protoc plugin. The commuication is performed used a [vtkSocketCommunicator](http://www.vtk.org/doc/nightly/html/classvtkSocketCommunicator.html)
 
-<img src="http://ulmus/ProtoCall.png" width=70%>
+<img src="https://raw.github.com/OpenChemistry/protocall/master/ProtoCall.png" width=70%>
 
 ## Installation and Build
 
@@ -346,7 +346,7 @@ Here is an example of a simple client that will connect to our server and call t
     channel.receive(false);
 
 
-The full code for this example can be found [here](http://kwsource.kitwarein.com/protocall/protocall/trees/master/examples/salutation)
+The full code for this example can be found [here](https://github.com/OpenChemistry/protocall/tree/master/examples/salutation)
 
 ## Compiling generate code and service implementations
 
