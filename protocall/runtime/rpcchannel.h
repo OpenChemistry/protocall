@@ -48,6 +48,7 @@ public:
 
   // TODO Make these private and use friendship?
   uint64  nextRequestId();
+
   virtual bool send(const rpc::Message *msg);
   virtual bool send(vtkDataObject *obj);
   virtual bool send(vtkDataArray *array);
@@ -55,10 +56,6 @@ public:
   virtual bool receive(bool nonBlocking = true);
   virtual bool receive(vtkDataObject *obj);
   virtual bool receive(vtkDataArray *array);
-  virtual bool send(const void *data, int size) = 0;
-  virtual bool receive(void *data, int size) = 0;
-  virtual bool send(unsigned int i) = 0;
-  virtual bool receive(unsigned int *i) = 0;
 
   bool handleMessage(rpc::Message *messageEnvelope);
   bool handleRequest(rpc::Message *messageEnvelope);
@@ -77,6 +74,9 @@ public:
   typedef std::map<uint64,ResponseCallbackEntry> CallBackMap;
 
 protected:
+  virtual bool send(const void *data, int size) = 0;
+  virtual bool receive(void *data, int size) = 0;
+
   virtual bool receive(rpc::Message *msg);
 
 
