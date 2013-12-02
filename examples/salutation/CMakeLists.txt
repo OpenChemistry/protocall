@@ -21,9 +21,12 @@ protocallc(_common_source
   _include_dir
   "hello.proto")
 
+#request that we find the vtk communicator src files
+protocall_communicator( vtk _communicator_srcs )
+
 include_directories(${_include_dir})
 
-add_library(runtime ${_common_source})
+add_library(runtime ${_common_source} ${_communicator_srcs} )
 target_link_libraries(runtime ${ProtoCall_LIBRARIES})
 
 add_executable(client
