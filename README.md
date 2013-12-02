@@ -15,7 +15,7 @@ ProtoCall uses protobuf to provide an asynchronous RPC framework for execution o
 # Building protobuf
 ProtoCall required protobuf as one of it dependences, so the first setup if to clone and buld protobuf. A CMake enable version have be clone as follows:
 
-    git clone http://git.kwsource.kitwarein.com/protocall/protobuf.git
+    git clone https://github.com/OpenChemistry/protocall.git
 
 The project can then be build like any other CMake project.
 
