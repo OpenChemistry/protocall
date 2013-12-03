@@ -6,6 +6,9 @@ SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+#to find our renamed version of boost
+include_directories(${ProtoCall_SOURCE_DIR}/thirdparty)
+
 add_executable(protoc-gen-protocallc
   rpcplugin.cpp
   rpcgenerator.cpp
