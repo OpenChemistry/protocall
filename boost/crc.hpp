@@ -10,7 +10,7 @@
 #define BOOST_CRC_HPP
 
 #include <boost/config.hpp>   // for BOOST_STATIC_CONSTANT, etc.
-#include <boost/integer.hpp>  // for boost::uint_t
+#include <boost/integer.hpp>  // for boostcrc::uint_t
 
 #include <climits>  // for CHAR_BIT, etc.
 #include <cstddef>  // for std::size_t
@@ -23,7 +23,7 @@
 // form, but also allows an alternate type for compilers that don't support
 // dependent types (in template value-parameters).
 #if !(defined(BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS) || (defined(BOOST_MSVC) && (BOOST_MSVC <= 1300)))
-#define BOOST_CRC_PARM_TYPE  typename ::boost::uint_t<Bits>::fast
+#define BOOST_CRC_PARM_TYPE  typename ::boostcrc::uint_t<Bits>::fast
 #else
 #define BOOST_CRC_PARM_TYPE  unsigned long
 #endif
@@ -43,7 +43,7 @@
 #define BOOST_ACRC_DUMMY_PARM_TYPE
 #define BOOST_ACRC_DUMMY_INIT
 #else
-namespace boost { namespace detail {
+namespace boostcrc { namespace detail {
     template < std::size_t Bits, BOOST_CRC_PARM_TYPE TruncPoly,
      BOOST_CRC_PARM_TYPE InitRem, BOOST_CRC_PARM_TYPE FinalXor,
      bool ReflectIn, bool ReflectRem >
@@ -58,7 +58,7 @@ namespace boost { namespace detail {
 #endif
 
 
-namespace boost
+namespace boostcrc
 {
 
 
@@ -184,7 +184,7 @@ private:
     value_type  poly_, init_, final_;  // non-const to allow assignability
     bool        rft_in_, rft_out_;     // non-const to allow assignability
 
-};  // boost::crc_basic
+};  // boostcrc::crc_basic
 
 
 //  Optimized cyclic redundancy code (CRC) class declaration  ----------------//
@@ -254,7 +254,7 @@ private:
     // Member data
     value_type  rem_;
 
-};  // boost::crc_optimal
+};  // boostcrc::crc_optimal
 
 
 //  Implementation detail stuff  ---------------------------------------------//
@@ -273,9 +273,9 @@ namespace detail
     // (1-based), get the mask for that bit by itself.
     template < std::size_t Bits >
     struct high_uint_t
-        : boost::uint_t< Bits >
+        : boostcrc::uint_t< Bits >
     {
-        typedef boost::uint_t<Bits>        base_type;
+        typedef boostcrc::uint_t<Bits>        base_type;
         typedef typename base_type::least  least;
         typedef typename base_type::fast   fast;
 
@@ -289,7 +289,7 @@ namespace detail
          - 1u )) );
 #endif
 
-    };  // boost::detail::high_uint_t
+    };  // boostcrc::detail::high_uint_t
 
 
     // Reflection routine class wrapper
@@ -297,11 +297,11 @@ namespace detail
     template < std::size_t Bits >
     struct reflector
     {
-        typedef typename boost::uint_t<Bits>::fast  value_type;
+        typedef typename boostcrc::uint_t<Bits>::fast  value_type;
 
         static  value_type  reflect( value_type x );
 
-    };  // boost::detail::reflector
+    };  // boostcrc::detail::reflector
 
     // Function that reflects its argument
     template < std::size_t Bits >
@@ -355,7 +355,7 @@ namespace detail
 #else
         BOOST_STATIC_CONSTANT( fast, sig_bits_fast = fast(sig_bits) );
 #endif
-    };  // boost::detail::mask_uint_t
+    };  // boostcrc::detail::mask_uint_t
 
     template <  >
     struct mask_uint_t< std::numeric_limits<unsigned char>::digits >
@@ -377,7 +377,7 @@ namespace detail
         BOOST_STATIC_CONSTANT( least, sig_bits = (~( least(0u) )) );
         BOOST_STATIC_CONSTANT( fast, sig_bits_fast = fast(sig_bits) );
 
-    };  // boost::detail::mask_uint_t
+    };  // boostcrc::detail::mask_uint_t
 
     #if USHRT_MAX > UCHAR_MAX
     template <  >
@@ -400,7 +400,7 @@ namespace detail
         BOOST_STATIC_CONSTANT( least, sig_bits = (~( least(0u) )) );
         BOOST_STATIC_CONSTANT( fast, sig_bits_fast = fast(sig_bits) );
 
-    };  // boost::detail::mask_uint_t
+    };  // boostcrc::detail::mask_uint_t
     #endif
 
     #if UINT_MAX > USHRT_MAX
@@ -424,7 +424,7 @@ namespace detail
         BOOST_STATIC_CONSTANT( least, sig_bits = (~( least(0u) )) );
         BOOST_STATIC_CONSTANT( fast, sig_bits_fast = fast(sig_bits) );
 
-    };  // boost::detail::mask_uint_t
+    };  // boostcrc::detail::mask_uint_t
     #endif
 
     #if ULONG_MAX > UINT_MAX
@@ -448,7 +448,7 @@ namespace detail
         BOOST_STATIC_CONSTANT( least, sig_bits = (~( least(0u) )) );
         BOOST_STATIC_CONSTANT( fast, sig_bits_fast = fast(sig_bits) );
 
-    };  // boost::detail::mask_uint_t
+    };  // boostcrc::detail::mask_uint_t
     #endif
 
 
@@ -476,7 +476,7 @@ namespace detail
 
         static  table_type  table_;
 
-    };  // boost::detail::crc_table_t
+    };  // boostcrc::detail::crc_table_t
 
     // CRC table generator static data member definition
     // (Some compilers [Borland C++] require the initializer to be present.)
@@ -596,7 +596,7 @@ namespace detail
             { return DoReflect ? rem >> CHAR_BIT : rem << CHAR_BIT; }
     #endif
 
-    };  // boost::detail::crc_helper
+    };  // boostcrc::detail::crc_helper
 
     #ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     template < std::size_t Bits >
@@ -618,7 +618,7 @@ namespace detail
         static  value_type  shift( value_type rem )
             { return rem << CHAR_BIT; }
 
-    };  // boost::detail::crc_helper
+    };  // boostcrc::detail::crc_helper
     #endif
 
 
@@ -1094,7 +1094,7 @@ augmented_crc
 }
 
 
-}  // namespace boost
+}  // namespace boostcrc
 
 
 // Undo header-private macros

@@ -115,7 +115,7 @@ bool RpcPlugin::isValidExtensionNumber(int number)
 
 int RpcPlugin::generateExtensionNumber(string &methodName)
 {
-  boost::crc_32_type crc;
+  boostcrc::crc_32_type crc;
   crc.process_bytes(methodName.data(), methodName.length());
 
   unsigned int hash = crc.checksum();

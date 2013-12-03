@@ -14,7 +14,7 @@
 #include <boost/config.hpp>
 
 #ifdef BOOST_NO_LIMITS
-# include <boost/detail/limits.hpp>
+#  error "There is no std::numeric_limits suppport available."
 #else
 # include <limits>
 #endif
@@ -26,8 +26,8 @@
 #  define BOOST_LLT __int64
 #  define BOOST_ULLT unsigned __int64
 #else
-#  define BOOST_LLT  ::boost::long_long_type
-#  define BOOST_ULLT  ::boost::ulong_long_type
+#  define BOOST_LLT  ::boostcrc::long_long_type
+#  define BOOST_ULLT  ::boostcrc::ulong_long_type
 #endif
 
 #include <climits>  // for CHAR_BIT
