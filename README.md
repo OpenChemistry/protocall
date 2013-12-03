@@ -1,6 +1,6 @@
 ## Overview
 
-ProtoCall uses protobuf to provide an asynchronous RPC framework for execution of remote C++ methods. Services are defined in the protocol buffer language which are then used to generate proxy code and service stubs via a protoc plugin. The commuication is performed used a [vtkSocketCommunicator](http://www.vtk.org/doc/nightly/html/classvtkSocketCommunicator.html)
+ ProtoCall uses protobuf to provide an asynchronous RPC framework for execution of remote C++ methods. Services are defined in the protocol buffer language which are then used to generate proxy code and service stubs via a protoc plugin. The commuication is performed used a [vtkSocketCommunicator](http://www.vtk.org/doc/nightly/html/classvtkSocketCommunicator.html)
 
 <img src="https://raw.github.com/OpenChemistry/protocall/master/ProtoCall.png" width=70%>
 
