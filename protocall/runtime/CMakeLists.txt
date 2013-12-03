@@ -1,6 +1,7 @@
 
 install(FILES
   vtkcommunicatorchannel.h
+  zmqcommunicatorchannel.h
   rpcchannel.h
   rpcvoiddata.h
   servicemanager.h
@@ -23,6 +24,7 @@ set(_src
 
 set(_commuicator_src
    vtkcommunicatorchannel.cpp
+   zmqcommunicatorchannel.cpp
    )
 
 # Set in parent scope so we can using it when configuring the config file
