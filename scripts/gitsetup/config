@@ -1,0 +1,8 @@
+[hooks]
+	url = git://source.openchemistry.org/openchemistry.git
+
+[gerrit]
+	project = protocall
+	site = http://review.source.kitware.com
+	# pushurl placeholder "$username" is literal
+	pushurl = $username@review.source.kitware.com:protocall
