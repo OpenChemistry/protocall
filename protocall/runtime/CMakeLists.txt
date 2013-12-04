@@ -2,6 +2,7 @@
 install(FILES
   vtkcommunicatorchannel.h
   rpcchannel.h
+  rpcvoiddata.h
   servicemanager.h
   service.h
   servicedispatcher.h
@@ -17,6 +18,7 @@ install(FILES
 set(_src
   servicemanager.cpp
   rpcchannel.cpp
+  rpcvoiddata.cpp
   servicedispatcher.cpp)
 
 set(_commuicator_src

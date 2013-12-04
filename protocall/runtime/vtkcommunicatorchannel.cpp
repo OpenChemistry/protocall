@@ -15,6 +15,8 @@
  ******************************************************************************/
 
 #include "vtkcommunicatorchannel.h"
+#include "rpcvoiddata.h"
+
 #include <memory>
 #include <vtkClientSocket.h>
 
@@ -35,9 +37,14 @@ vtkCommunicatorChannel::vtkCommunicatorChannel(vtkSocketCommunicator *communicat
   m_collection->AddItem(m_communicator->GetSocket());
 }
 
-bool vtkCommunicatorChannel::send(const void *data, int size)
+bool vtkCommunicatorChannel::send(const RpcVoidData *data)
 {
-  if (!m_communicator->SendVoidArray(data, size, VTK_UNSIGNED_CHAR, 1,
+  if (!this->send(data->size())) {
+    this->setErrorString("Error occurred sending message size");
+    return false;
+  }
+
+  if (!m_communicator->SendVoidArray(data, data->size(), VTK_UNSIGNED_CHAR, 1,
       MESSAGE_TAG)) {
     this->setErrorString("VTK Error: Error calling SendVoidArray(void*)");
     return false;
@@ -70,8 +77,8 @@ bool vtkCommunicatorChannel::send(const rpc::Message *msg)
     return false;
   }
 
-  std::vector<unsigned char> data(size);
-  if(!msg->SerializeToArray(&data[0], size)) {
+  RpcVoidData data(size);
+  if(!msg->SerializeToArray(data, size)) {
     this->setErrorString("ProtoBuf Error: Error calling SerializeToArray");
     return false;
   }
@@ -83,7 +90,7 @@ bool vtkCommunicatorChannel::send(const rpc::Message *msg)
   }
 
   // Now send the message
-  if (!this->send(&data[0], size)) {
+  if (!this->send(&data)) {
     this->setErrorString("Error occurred sending message data");
     return false;
   }
@@ -111,9 +118,19 @@ bool vtkCommunicatorChannel::send(vtkDataArray *array)
   return true;
 }
 
-
-bool vtkCommunicatorChannel::receive(void *data, int size)
+//is size the size of the data* or is it the size that *data should
+//be after we are done compression
+bool vtkCommunicatorChannel::receive(RpcVoidData *data)
 {
+  unsigned int size;
+
+  if (!this->receive(size)) {
+    this->setErrorString("Unable to receive message size");
+    return false;
+  }
+
+  data->resize(size);
+
   if (!this->m_communicator->ReceiveVoidArray(data, size, VTK_UNSIGNED_CHAR, 1,
       MESSAGE_TAG)) {
     this->setErrorString("VTK Error: Error calling ReceiveVoidArray(void*)");
@@ -123,9 +140,9 @@ bool vtkCommunicatorChannel::receive(void *data, int size)
   return true;
 }
 
-bool vtkCommunicatorChannel::receive(unsigned int *size)
+bool vtkCommunicatorChannel::receive(unsigned int& size)
 {
-  if (!this->m_communicator->Receive(size, 1, 1, SIZE_TAG)) {
+  if (!this->m_communicator->Receive(&size, 1, 1, SIZE_TAG)) {
     this->setErrorString("VTK Error: Error calling Receive(int*)");
     return false;
   }
@@ -139,18 +156,18 @@ bool vtkCommunicatorChannel::receive(rpc::Message *msg)
 {
   unsigned int size;
 
-  if (!this->receive(&size)) {
+  if (!this->receive(size)) {
     this->setErrorString("Unable to receive message size");
     return false;
   }
 
-  std::vector<unsigned char> data(size);
-  if (!this->receive(&data[0], size)) {
+  RpcVoidData data(size);
+  if (!this->receive(data)) {
     this->setErrorString("Unable to receive message data");
     return false;
   }
 
-  if (!msg->ParseFromArray(&data[0], size)) {
+  if (!msg->ParseFromArray(data, size)) {
     this->setErrorString("ProtoBuf Erro: Error calling ParseFromArray");
     return false;
   }

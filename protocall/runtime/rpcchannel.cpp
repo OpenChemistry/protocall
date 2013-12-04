@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 #include "rpcchannel.h"
+#include "rpcvoiddata.h"
 #include "servicemanager.h"
 #include "servicedispatcher.h"
 #include "responsehandler.h"
@@ -54,14 +55,15 @@ bool RpcChannel::send(const rpc::Message *messageEnvelope)
     return false;
   }
 
-  int size = messageEnvelope->ByteSize();
-  char *data = new char[size];
+  unsigned int size = static_cast<unsigned int>(messageEnvelope->ByteSize());
+  RpcVoidData data(size);
+
   if(!messageEnvelope->SerializeToArray(data, size)) {
     this->setErrorString("ProtoBuf: Error calling SerializeToArray");
     return false;
   }
 
-  return this->send(data, size);
+  return this->send(&data);
 }
 
 bool RpcChannel::send(vtkDataObject *obj)
