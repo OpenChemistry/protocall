@@ -44,7 +44,7 @@ bool vtkCommunicatorChannel::send(const RpcVoidData *data)
     return false;
   }
 
-  if (!m_communicator->SendVoidArray(data, data->size(), VTK_UNSIGNED_CHAR, 1,
+  if (!m_communicator->SendVoidArray(data->constData(), data->size(), VTK_UNSIGNED_CHAR, 1,
       MESSAGE_TAG)) {
     this->setErrorString("VTK Error: Error calling SendVoidArray(void*)");
     return false;
@@ -78,7 +78,7 @@ bool vtkCommunicatorChannel::send(const rpc::Message *msg)
   }
 
   RpcVoidData data(size);
-  if(!msg->SerializeToArray(data, size)) {
+  if(!msg->SerializeToArray(data.data(), size)) {
     this->setErrorString("ProtoBuf Error: Error calling SerializeToArray");
     return false;
   }
@@ -131,7 +131,7 @@ bool vtkCommunicatorChannel::receive(RpcVoidData *data)
 
   data->resize(size);
 
-  if (!this->m_communicator->ReceiveVoidArray(data, size, VTK_UNSIGNED_CHAR, 1,
+  if (!this->m_communicator->ReceiveVoidArray(data->data(), size, VTK_UNSIGNED_CHAR, 1,
       MESSAGE_TAG)) {
     this->setErrorString("VTK Error: Error calling ReceiveVoidArray(void*)");
     return false;
@@ -167,7 +167,7 @@ bool vtkCommunicatorChannel::receive(rpc::Message *msg)
     return false;
   }
 
-  if (!msg->ParseFromArray(data, size)) {
+  if (!msg->ParseFromArray(data.constData(), data.size())) {
     this->setErrorString("ProtoBuf Erro: Error calling ParseFromArray");
     return false;
   }

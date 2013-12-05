@@ -58,7 +58,7 @@ bool RpcChannel::send(const rpc::Message *messageEnvelope)
   unsigned int size = static_cast<unsigned int>(messageEnvelope->ByteSize());
   RpcVoidData data(size);
 
-  if(!messageEnvelope->SerializeToArray(data, size)) {
+  if(!messageEnvelope->SerializeToArray(data.data(), size)) {
     this->setErrorString("ProtoBuf: Error calling SerializeToArray");
     return false;
   }

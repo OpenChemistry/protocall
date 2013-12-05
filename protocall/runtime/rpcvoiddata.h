@@ -30,8 +30,8 @@ public:
   unsigned int size() const;
   void resize(unsigned int numbytes);
 
-  operator void* ();
-  operator const void* () const;
+  void* data();
+  const void* constData() const;
 
 private:
   struct InternalData;

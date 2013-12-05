@@ -22,7 +22,7 @@ namespace Runtime {
 
 struct RpcVoidData::InternalData
 {
-  InternalData():void_data(){}
+  InternalData():void_data(0){}
   InternalData(unsigned int numbytes):void_data(numbytes){}
   std::vector<unsigned char> void_data;
 };
@@ -52,12 +52,12 @@ void RpcVoidData::resize(unsigned int numbytes)
   m_idata->void_data.resize(numbytes);
 }
 
-RpcVoidData::operator void* ()
+void* RpcVoidData::data()
 {
   return &m_idata->void_data[0];
 }
 
-RpcVoidData::operator const void* () const
+const void* RpcVoidData::constData() const
 {
   return &m_idata->void_data[0];
 }

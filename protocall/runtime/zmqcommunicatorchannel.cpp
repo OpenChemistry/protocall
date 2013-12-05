@@ -188,7 +188,7 @@ bool zmqCommunicatorChannel::send(const RpcVoidData *data)
 
   zmq_msg_t msg_data;
   zmq_msg_init_size(&msg_data,size);
-  memcpy(zmq_msg_data(&msg_data),data,size);
+  memcpy(zmq_msg_data(&msg_data),data->constData(),size);
 
   //attach socket ids
   this->sendSocketIdentities();
@@ -268,7 +268,7 @@ bool zmqCommunicatorChannel::receive(RpcVoidData *data)
     }
 
   data->resize(nbytes);
-  memcpy(data, zmq_msg_data(&msg_data), nbytes);
+  memcpy(data->data(), zmq_msg_data(&msg_data), nbytes);
   zmq_msg_close(&msg_data);
 
   return true;

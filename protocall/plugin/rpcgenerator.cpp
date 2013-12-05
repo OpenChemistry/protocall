@@ -930,10 +930,10 @@ void RpcGenerator::generateSentExternalBlock(const string &variableName,
         std::map<string, string> variables;
         variables["channelName"] = channelName;
         printer.Print("::ProtoCall::Runtime::RpcVoidData data(size);\n");
-        this->generateErrorCheck("serializer.serialize(&data)", variables,
+        this->generateErrorCheck("serializer.serialize(data.data(), size)", variables,
             printer, "$channelName$->setErrorString(\"Serialization failed\");return;\n");
 
-        this->generateErrorCheck("$channelName$->send(&data[0], size)", variables,
+        this->generateErrorCheck("$channelName$->send(&data)", variables,
             printer);
         printer.Outdent();
         printer.Print("}\n");
@@ -1042,7 +1042,7 @@ void RpcGenerator::generateReceiveExternalBlock(const string &variableName,
             "externalClass", externalClass, "deserializerVar", deserializerVar,
             "objVar", objVar);
         variables["deserializerVar"] = deserializerVar;
-        this->generateErrorCheck("$deserializerVar$.deserialize(&$var$[0], $size$)", variables,
+        this->generateErrorCheck("$deserializerVar$.deserialize($var$.data(), $var$.size())", variables,
             tmpPrinter, "$channelName$->setErrorString(\"Deserialization failed\");return;\n");
 
         variables.clear();
