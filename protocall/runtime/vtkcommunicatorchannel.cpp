@@ -83,12 +83,6 @@ bool vtkCommunicatorChannel::send(const rpc::Message *msg)
     return false;
   }
 
-  // First send the size
-  if (!this->send(size)) {
-    this->setErrorString("Error occurred sending message size");
-    return false;
-  }
-
   // Now send the message
   if (!this->send(&data)) {
     this->setErrorString("Error occurred sending message data");
@@ -154,15 +148,8 @@ bool vtkCommunicatorChannel::receive(unsigned int& size)
 // TODO move to super class
 bool vtkCommunicatorChannel::receive(rpc::Message *msg)
 {
-  unsigned int size;
-
-  if (!this->receive(size)) {
-    this->setErrorString("Unable to receive message size");
-    return false;
-  }
-
-  RpcVoidData data(size);
-  if (!this->receive(data)) {
+  RpcVoidData data;
+  if (!this->receive(&data)) {
     this->setErrorString("Unable to receive message data");
     return false;
   }
