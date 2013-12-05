@@ -13,7 +13,7 @@
  limitations under the License.
 
  ******************************************************************************/
-#include "zmqCommunicatorChannel.h"
+#include "zmqcommunicatorchannel.h"
 #include "rpcvoiddata.h"
 
 #include <zmq.h>
