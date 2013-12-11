@@ -29,6 +29,7 @@ class vtkDataArray;
 namespace ProtoCall {
 namespace Runtime {
 
+class RpcVoidData;
 class ResponseHandler;
 
 using google::protobuf::uint64;
@@ -55,10 +56,8 @@ public:
   virtual bool receive(bool nonBlocking = true);
   virtual bool receive(vtkDataObject *obj);
   virtual bool receive(vtkDataArray *array);
-  virtual bool send(const void *data, int size) = 0;
-  virtual bool receive(void *data, int size) = 0;
-  virtual bool send(unsigned int i) = 0;
-  virtual bool receive(unsigned int *i) = 0;
+  virtual bool send(const RpcVoidData *data) = 0;
+  virtual bool receive(RpcVoidData *data) = 0;
 
   bool handleMessage(rpc::Message *messageEnvelope);
   bool handleRequest(rpc::Message *messageEnvelope);

@@ -119,6 +119,7 @@ void RpcGenerator::generateServiceHeader(
   printer.Print("#include \"$protoName$.pb.h\"\n"
                 "#include \"$protoName$_rpc.pb.h\"\n"
                 "#include <protocall/runtime/rpcchannel.h>\n"
+                "#include <protocall/runtime/rpcvoiddata.h>\n"
                 "#include <protocall/runtime/service.h>\n",
                 "protoName", protoName);
 
@@ -925,21 +926,14 @@ void RpcGenerator::generateSentExternalBlock(const string &variableName,
 
         printer.Print("$externalClass$Serializer serializer($var$);\n",
             "externalClass", externalClass, "var", var);
-        printer.Print("size_t size = serializer.size();\n");
+        printer.Print("const size_t size = serializer.size();\n");
         std::map<string, string> variables;
         variables["channelName"] = channelName;
-        printer.Print("std::vector<unsigned char> data(size);\n");
-        this->generateErrorCheck("serializer.serialize(&data[0], size)", variables,
+        printer.Print("::ProtoCall::Runtime::RpcVoidData data(size);\n");
+        this->generateErrorCheck("serializer.serialize(data.data(), size)", variables,
             printer, "$channelName$->setErrorString(\"Serialization failed\");return;\n");
 
-        variables.clear();
-        variables["channelName"] = channelName;
-
-        // Send the size first
-        this->generateErrorCheck("$channelName$->send(size)", variables,
-                    printer);
-
-        this->generateErrorCheck("$channelName$->send(&data[0], size)", variables,
+        this->generateErrorCheck("$channelName$->send(&data)", variables,
             printer);
         printer.Outdent();
         printer.Print("}\n");
@@ -1012,10 +1006,6 @@ void RpcGenerator::generateReceiveExternalBlock(const string &variableName,
         objStream << "obj" << i;
         string objVar = objStream.str();
 
-        std::ostringstream sizeStream;
-        sizeStream << "size" << i;
-        string sizeVar = sizeStream.str();
-
         std::ostringstream deserializerStream;
         deserializerStream << "deserializer" << i;
         string deserializerVar = deserializerStream.str();
@@ -1028,17 +1018,13 @@ void RpcGenerator::generateReceiveExternalBlock(const string &variableName,
           "variableName", "tmp", "fieldName", field->lowercase_name());
         tmpPrinter.Indent();
 
-        tmpPrinter.Print("unsigned int $sizeVar$;\n", "sizeVar", sizeVar);
+        tmpPrinter.Print("::ProtoCall::Runtime::RpcVoidData $data$;\n", "data",
+                         dataVar);
+
         std::map<string, string> variables;
-        variables["var"] = sizeVar;
+        variables["var"] = dataVar;
         variables["channelName"] = channelName;
         this->generateErrorCheck("$channelName$->receive(&$var$)", variables,
-                    tmpPrinter);
-        tmpPrinter.Print("std::vector<unsigned char> $data$($size$);\n", "data",
-            dataVar, "size", sizeVar);
-        variables["var"] = dataVar;
-        variables["size"] = sizeVar;
-        this->generateErrorCheck("$channelName$->receive(&$var$[0], $size$)", variables,
                     tmpPrinter);
 
         tmpPrinter.Print("$externalClass$ *$objVar$ = tmp->$field$().get();\n",
@@ -1056,7 +1042,7 @@ void RpcGenerator::generateReceiveExternalBlock(const string &variableName,
             "externalClass", externalClass, "deserializerVar", deserializerVar,
             "objVar", objVar);
         variables["deserializerVar"] = deserializerVar;
-        this->generateErrorCheck("$deserializerVar$.deserialize(&$var$[0], $size$)", variables,
+        this->generateErrorCheck("$deserializerVar$.deserialize($var$.data(), $var$.size())", variables,
             tmpPrinter, "$channelName$->setErrorString(\"Deserialization failed\");return;\n");
 
         variables.clear();

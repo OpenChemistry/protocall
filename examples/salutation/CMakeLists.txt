@@ -8,10 +8,10 @@ find_package(VTK COMPONENTS vtkParallelCore)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(${VTK_INCLUDE_DIRS})
 
-find_package(protobuf REQUIRED NO_MODULE)
+find_package(protobuf REQUIRED)
 include_directories(${protobuf_INCLUDE_DIRS})
 
-find_package(ProtoCall REQUIRED NO_MODULE)
+find_package(ProtoCall REQUIRED)
 include_directories(SYSTEM ${ProtoCall_INCLUDE_DIRS})
 
 
@@ -21,9 +21,15 @@ protocallc(_common_source
   _include_dir
   "hello.proto")
 
+#request that we find the vtk communicator and append it to the src files
+protocall_communicator( vtk _common_source )
+
+
+message(STATUS "_common_source: ${_common_source} ")
+
 include_directories(${_include_dir})
 
-add_library(runtime ${_common_source})
+add_library(runtime ${_common_source} )
 target_link_libraries(runtime ${ProtoCall_LIBRARIES})
 
 add_executable(client

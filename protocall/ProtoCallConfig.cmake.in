@@ -9,8 +9,28 @@ set(ProtoCall_PLUGIN_EXE @ProtoCall_PLUGIN_EXE@)
 set(ProtoCall_CMAKE_DIR @ProtoCall_CMAKE_DIR@)
 set(ProtoCall_SOURCE_DIR "@ProtoCall_SOURCE_DIR@")
 set(ProtoCall_RUNTIME_SOURCE "@ProtoCall_RUNTIME_SOURCE@")
-set(ProtoCall_LIBRARIES protobuf vtkParallelCore)
+set(ProtoCall_COMMUNICATOR_SOURCES "@ProtoCall_COMMUNICATOR_SOURCES@")
+set(ProtoCall_LIBRARIES protobuf)
+set(ProtoCall_VTK_LIBRARIES vtkParallelCore)
 set(protobuf_DIR @protobuf_DIR@)
+
+#find a communicator of a given type, currently we
+#have the communicators vtk and zmq
+#
+# usage:
+# protocall_communicator( vtk vtk_srcs )
+# will find the vtk communicator and append to the vtk_srcs variable
+# the absolute path of the source files for the vtk communicator
+function( protocall_communicator comm_type comm_src_dest )
+  set(_comm_srcs "${${comm_src_dest}}")
+  foreach(_communicator ${ProtoCall_COMMUNICATOR_SOURCES})
+    string(FIND "${_communicator}" "${comm_type}communicatorchannel" _comm_found)
+    if(${_comm_found} EQUAL 0)
+      list(APPEND _comm_srcs  "${ProtoCall_SOURCE_DIR}/${_communicator}")
+    endif()
+  endforeach()
+  set(${comm_src_dest} "${_comm_srcs}" PARENT_SCOPE)
+endfunction()
 
 macro(protocallc _common_source _service_source _proxy_source _include_dir)
 #  if(NOT ARGN)
@@ -79,6 +99,9 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
     list(APPEND ${_common_source}
       ${CMAKE_CURRENT_BINARY_DIR}/protoc_output/protocall/vtk.pb.cc)
     set(ProtoCall_IMPORT_VTK_PROTO "import public \"protocall/vtk.proto\";")
+
+    #update the linking to include vtk libraries
+    list(APPEND ProtoCall_LIBRARIES "${ProtoCall_VTK_LIBRARIES}")
   endif()
 
   set(ProtoCall_IMPORT_VOID_PROTO)
@@ -102,10 +125,16 @@ macro(protocallc _common_source _service_source _proxy_source _include_dir)
   set(_protoc_output_dir "${CMAKE_CURRENT_BINARY_DIR}/protoc_output")
   get_target_property(_plugin_exe protoc-gen-protocallc LOCATION)
 
+  if(EXISTS "${PROTOBUF_PROTOC_EXECUTABLE}")
+    set(protoc_compiler "${PROTOBUF_PROTOC_EXECUTABLE}")
+  else()
+    set(protoc_compiler "protoc_compiler")
+  endif()
+
   add_custom_command(
     OUTPUT ${${_common_source}} ${${_service_source}} ${${_proxy_source}}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${_protoc_output_dir}
-    COMMAND protoc_compiler
+    COMMAND ${protoc_compiler}
     ARGS --plugin=protoc-gen-protocallc=${_plugin_exe} --protocallc_out=${_protoc_output_dir}
       ${_proto_path_args} ${_proto_files}
     DEPENDS ${_proto_files} ${CMAKE_CURRENT_BINARY_DIR}/proto.timestamp
